@@ -11,6 +11,7 @@
 #include "kz/timer/kz_timer.h"
 #include "utils/utils.h"
 #include "entityclass.h"
+#include "movement/mv_mappingapi.h"
 
 class GameSessionConfiguration_t
 {
@@ -522,7 +523,7 @@ internal void Hook_GameFrame(bool simulating, bool bFirstTick, bool bLastTick)
 	local_persist int entitySystemHook {};
 	if (GameEntitySystem() && !entitySystemHook)
 	{
-		entitySystemHook = SH_ADD_HOOK(CEntitySystem, Spawn, GameEntitySystem(), SH_STATIC(Hook_CEntitySystem_Spawn_Post), true);
+		entitySystemHook = SH_ADD_HOOK(CEntitySystem, Spawn, GameEntitySystem(), SH_STATIC(Hook_CEntitySystem_Spawn), false);
 	}
 	RETURN_META(MRES_IGNORED);
 }
@@ -667,17 +668,9 @@ internal void Hook_PostEvent(CSplitScreenSlot nSlot, bool bLocalOnly, int nClien
 }
 
 // CEntitySystem
-internal void Hook_CEntitySystem_Spawn_Post(int nCount, const EntitySpawnInfo_t *pInfo_DontUse)
+internal void Hook_CEntitySystem_Spawn_Post(int nCount, const EntitySpawnInfo_t *pInfo)
 {
-	EntitySpawnInfo_t *pInfo = (EntitySpawnInfo_t *)pInfo_DontUse;
-
-	for (i32 i = 0; i < nCount; i++)
-	{
-		if (pInfo && pInfo[i].m_pEntity)
-		{
-			// do stuff with spawning entities!
-		}
-	}
+	mappingapi::OnSpawn(nCount, pInfo);
 }
 
 // INetworkGameServer
