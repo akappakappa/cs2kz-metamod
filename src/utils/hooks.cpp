@@ -351,7 +351,7 @@ internal void Hook_OnStartTouchPost(CBaseEntity *pOther)
 	if (player && !V_stricmp(pThis->GetClassname(), "trigger_multiple"))
 	{
 		CBaseTrigger *trigger = static_cast<CBaseTrigger *>(pThis);
-		mappingapi::OnTriggerMultipleStartTouchPost(player, trigger);
+		g_pMappingApi->OnTriggerMultipleStartTouchPost(player, trigger);
 	}
 	RETURN_META(MRES_IGNORED);
 }
@@ -471,10 +471,10 @@ internal void Hook_OnEndTouchPost(CBaseEntity *pOther)
 		RETURN_META(MRES_IGNORED);
 	}
 	CBaseEntity *pThis = META_IFACEPTR(CBaseEntity);
-	if (player && !V_stricmp(pThis->GetClassname(), "trigger_multiple") && static_cast<CBaseTrigger *>(pThis)->IsStartZone())
+	if (player && !V_stricmp(pThis->GetClassname(), "trigger_multiple"))
 	{
 		CBaseTrigger *trigger = static_cast<CBaseTrigger *>(pThis);
-		mappingapi::OnTriggerMultipleEndTouchPost(player, trigger);
+		g_pMappingApi->OnTriggerMultipleEndTouchPost(player, trigger);
 	}
 	RETURN_META(MRES_IGNORED);
 }
@@ -626,6 +626,10 @@ internal bool Hook_FireEvent(IGameEvent *event, bool bDontBroadcast)
 			KZTimerService::OnRoundStart();
 			hooks::HookEntities();
 		}
+		else if (V_stricmp(event->GetName(), "round_prestart") == 0)
+		{
+			Mappingapi_Initialize();
+		}
 		else if (V_stricmp(event->GetName(), "player_team") == 0)
 		{
 			event->SetBool("silent", true);
@@ -664,7 +668,7 @@ internal void Hook_PostEvent(CSplitScreenSlot nSlot, bool bLocalOnly, int nClien
 // CEntitySystem
 internal void Hook_CEntitySystem_Spawn_Post(int nCount, const EntitySpawnInfo_t *pInfo)
 {
-	g_mappingInterface.OnSpawnPost(nCount, pInfo);
+	g_pMappingApi->OnSpawnPost(nCount, pInfo);
 }
 
 // INetworkGameServer
