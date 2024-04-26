@@ -351,14 +351,7 @@ internal void Hook_OnStartTouchPost(CBaseEntity *pOther)
 	if (player && !V_stricmp(pThis->GetClassname(), "trigger_multiple"))
 	{
 		CBaseTrigger *trigger = static_cast<CBaseTrigger *>(pThis);
-		if (trigger->IsEndZone())
-		{
-			player->EndZoneStartTouch();
-		}
-		else if (trigger->IsStartZone())
-		{
-			player->StartZoneStartTouch();
-		}
+		mappingapi::OnTriggerMultipleStartTouchPost(player, trigger);
 	}
 	RETURN_META(MRES_IGNORED);
 }
@@ -480,7 +473,8 @@ internal void Hook_OnEndTouchPost(CBaseEntity *pOther)
 	CBaseEntity *pThis = META_IFACEPTR(CBaseEntity);
 	if (player && !V_stricmp(pThis->GetClassname(), "trigger_multiple") && static_cast<CBaseTrigger *>(pThis)->IsStartZone())
 	{
-		player->StartZoneEndTouch();
+		CBaseTrigger *trigger = static_cast<CBaseTrigger *>(pThis);
+		mappingapi::OnTriggerMultipleEndTouchPost(player, trigger);
 	}
 	RETURN_META(MRES_IGNORED);
 }

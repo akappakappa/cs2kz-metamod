@@ -7,8 +7,8 @@
 #include "utils/gameconfig.h"
 
 #include "movement/movement.h"
-#include "movement/mv_mappingapi.h"
 #include "kz/kz.h"
+#include "movement/mv_mappingapi.h"
 #include "kz/hud/kz_hud.h"
 #include "kz/mode/kz_mode.h"
 #include "kz/spec/kz_spec.h"
