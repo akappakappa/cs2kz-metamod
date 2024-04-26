@@ -523,7 +523,7 @@ internal void Hook_GameFrame(bool simulating, bool bFirstTick, bool bLastTick)
 	local_persist int entitySystemHook {};
 	if (GameEntitySystem() && !entitySystemHook)
 	{
-		entitySystemHook = SH_ADD_HOOK(CEntitySystem, Spawn, GameEntitySystem(), SH_STATIC(Hook_CEntitySystem_Spawn), false);
+		entitySystemHook = SH_ADD_HOOK(CEntitySystem, Spawn, GameEntitySystem(), SH_STATIC(Hook_CEntitySystem_Spawn_Post), false);
 	}
 	RETURN_META(MRES_IGNORED);
 }
