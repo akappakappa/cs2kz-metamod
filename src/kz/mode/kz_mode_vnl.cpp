@@ -281,7 +281,7 @@ void KZVanillaModeService::OnAirMovePost()
 // Only touch timer triggers on full ticks.
 bool KZVanillaModeService::OnTriggerStartTouch(CBaseTrigger *trigger)
 {
-	if (!mappingapi::IsTriggerATimerZone(trigger))
+	if (!g_mappingInterface.IsTriggerATimerZone(trigger))
 	{
 		return true;
 	}
@@ -296,7 +296,7 @@ bool KZVanillaModeService::OnTriggerStartTouch(CBaseTrigger *trigger)
 
 bool KZVanillaModeService::OnTriggerTouch(CBaseTrigger *trigger)
 {
-	if (!mappingapi::IsTriggerATimerZone(trigger))
+	if (!g_mappingInterface.IsTriggerATimerZone(trigger))
 	{
 		return true;
 	}
@@ -310,7 +310,7 @@ bool KZVanillaModeService::OnTriggerTouch(CBaseTrigger *trigger)
 
 bool KZVanillaModeService::OnTriggerEndTouch(CBaseTrigger *trigger)
 {
-	if (!mappingapi::IsTriggerATimerZone(trigger))
+	if (!g_mappingInterface.IsTriggerATimerZone(trigger))
 	{
 		return true;
 	}

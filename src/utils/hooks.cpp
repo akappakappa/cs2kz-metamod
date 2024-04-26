@@ -664,7 +664,7 @@ internal void Hook_PostEvent(CSplitScreenSlot nSlot, bool bLocalOnly, int nClien
 // CEntitySystem
 internal void Hook_CEntitySystem_Spawn_Post(int nCount, const EntitySpawnInfo_t *pInfo)
 {
-	mappingapi::OnSpawn(nCount, pInfo);
+	g_mappingInterface.OnSpawnPost(nCount, pInfo);
 }
 
 // INetworkGameServer
