@@ -9,9 +9,9 @@
 #include "ctimer.h"
 #include "kz/quiet/kz_quiet.h"
 #include "kz/timer/kz_timer.h"
+#include "kz/mappingapi/kz_mappingapi.h"
 #include "utils/utils.h"
 #include "entityclass.h"
-#include "movement/mv_mappingapi.h"
 
 class GameSessionConfiguration_t
 {

@@ -8,7 +8,6 @@
 
 #include "movement/movement.h"
 #include "kz/kz.h"
-#include "movement/mv_mappingapi.h"
 #include "kz/hud/kz_hud.h"
 #include "kz/mode/kz_mode.h"
 #include "kz/spec/kz_spec.h"
@@ -16,6 +15,7 @@
 #include "kz/tip/kz_tip.h"
 #include "kz/option/kz_option.h"
 #include "kz/language/kz_language.h"
+#include "kz/mappingapi/kz_mappingapi.h"
 
 #include "tier0/memdbgon.h"
 

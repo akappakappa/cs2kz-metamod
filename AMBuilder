@@ -89,7 +89,6 @@ for sdk_target in MMSPlugin.sdk_targets:
     os.path.join(builder.sourcePath, 'src', 'movement', 'mv_hooks.cpp'),
     os.path.join(builder.sourcePath, 'src', 'movement', 'mv_manager.cpp'),
     os.path.join(builder.sourcePath, 'src', 'movement', 'mv_player.cpp'),
-    os.path.join(builder.sourcePath, 'src', 'movement', 'mv_mappingapi.cpp'),
 
     os.path.join(builder.sourcePath, 'src', 'kz', 'kz_misc.cpp'),
     os.path.join(builder.sourcePath, 'src', 'kz', 'kz_manager.cpp'),
@@ -101,6 +100,7 @@ for sdk_target in MMSPlugin.sdk_targets:
     os.path.join(builder.sourcePath, 'src', 'kz', 'checkpoint', 'commands.cpp'),
     os.path.join(builder.sourcePath, 'src', 'kz', 'global', 'kz_global.cpp'),
     os.path.join(builder.sourcePath, 'src', 'kz', 'hud', 'kz_hud.cpp'),
+    os.path.join(builder.sourcePath, 'src', 'kz', 'mappingapi', 'kz_mappingapi.cpp'),
 
     os.path.join(builder.sourcePath, 'src', 'kz', 'jumpstats', 'kz_jumpstats.cpp'),
     os.path.join(builder.sourcePath, 'src', 'kz', 'jumpstats', 'jump_reporting.cpp'),
