@@ -24,21 +24,21 @@ bool KZTimerService::UnregisterEventListener(KZTimerServiceEventListener *eventL
 	return eventListeners.FindAndRemove(eventListener);
 }
 
-void KZTimerService::StartZoneStartTouch()
+void KZTimerService::StartZoneStartTouch(const KzCourseDescriptor *course)
 {
 	this->touchedGroundSinceTouchingStartZone = !!(this->player->GetPlayerPawn()->m_fFlags & FL_ONGROUND);
 	this->TimerStop(false);
 }
 
-void KZTimerService::StartZoneEndTouch()
+void KZTimerService::StartZoneEndTouch(const KzCourseDescriptor *course)
 {
 	if (this->touchedGroundSinceTouchingStartZone)
 	{
-		this->TimerStart("");
+		this->TimerStart(course);
 	}
 }
 
-bool KZTimerService::TimerStart(const char *courseName, bool playSound)
+bool KZTimerService::TimerStart(const KzCourseDescriptor *course, bool playSound)
 {
 	// clang-format off
 	if (!this->player->GetPlayerPawn()->IsAlive()
@@ -48,7 +48,7 @@ bool KZTimerService::TimerStart(const char *courseName, bool playSound)
 		|| this->player->noclipService->JustNoclipped()
 		|| !this->HasValidMoveType()
 		|| this->JustLanded()
-		|| (this->GetTimerRunning() && !V_stricmp(courseName, this->currentCourse))
+		|| (this->GetTimerRunning() && !V_stricmp(course->name, this->currentCourse->name))
 		|| (!(this->player->GetPlayerPawn()->m_fFlags & FL_ONGROUND) && !this->GetValidJump()))
 	// clang-format on
 	{
@@ -63,7 +63,7 @@ bool KZTimerService::TimerStart(const char *courseName, bool playSound)
 	bool allowStart = true;
 	FOR_EACH_VEC(eventListeners, i)
 	{
-		allowStart &= eventListeners[i]->OnTimerStart(this->player, courseName);
+		allowStart &= eventListeners[i]->OnTimerStart(this->player, course);
 	}
 	if (!allowStart)
 	{
@@ -72,7 +72,7 @@ bool KZTimerService::TimerStart(const char *courseName, bool playSound)
 
 	this->currentTime = 0.0f;
 	this->timerRunning = true;
-	V_strncpy(this->currentCourse, courseName, KZ_MAX_COURSE_NAME_LENGTH);
+	SetCourse(course);
 	V_strncpy(this->lastStartMode, this->player->modeService->GetModeName(), KZ_MAX_MODE_NAME_LENGTH);
 	validTime = true;
 	if (playSound)
@@ -82,19 +82,19 @@ bool KZTimerService::TimerStart(const char *courseName, bool playSound)
 
 	FOR_EACH_VEC(eventListeners, i)
 	{
-		eventListeners[i]->OnTimerStartPost(this->player, courseName);
+		eventListeners[i]->OnTimerStartPost(this->player, course);
 	}
 	return true;
 }
 
-bool KZTimerService::TimerEnd(const char *courseName)
+bool KZTimerService::TimerEnd(const KzCourseDescriptor *course)
 {
 	if (!this->player->IsAlive())
 	{
 		return false;
 	}
 
-	if (!this->timerRunning || V_stricmp(this->currentCourse, courseName) != 0)
+	if (!this->timerRunning || V_stricmp(this->currentCourse->name, course->name) != 0)
 	{
 		this->PlayTimerFalseEndSound();
 		this->lastFalseEndTime = g_pKZUtils->GetServerGlobals()->curtime;
@@ -107,7 +107,7 @@ bool KZTimerService::TimerEnd(const char *courseName)
 	bool allowEnd = true;
 	FOR_EACH_VEC(eventListeners, i)
 	{
-		allowEnd &= eventListeners[i]->OnTimerEnd(this->player, courseName, time, teleportsUsed);
+		allowEnd &= eventListeners[i]->OnTimerEnd(this->player, course, time, teleportsUsed);
 	}
 	if (!allowEnd)
 	{
@@ -125,7 +125,7 @@ bool KZTimerService::TimerEnd(const char *courseName)
 		bool showMessage = true;
 		FOR_EACH_VEC(eventListeners, i)
 		{
-			showMessage &= eventListeners[i]->OnTimerEndMessage(this->player, courseName, time, teleportsUsed);
+			showMessage &= eventListeners[i]->OnTimerEndMessage(this->player, course, time, teleportsUsed);
 		}
 		if (showMessage)
 		{
@@ -135,7 +135,7 @@ bool KZTimerService::TimerEnd(const char *courseName)
 
 	FOR_EACH_VEC(eventListeners, i)
 	{
-		eventListeners[i]->OnTimerEndPost(this->player, courseName, time, teleportsUsed);
+		eventListeners[i]->OnTimerEndPost(this->player, course, time, teleportsUsed);
 	}
 
 	return true;
@@ -155,7 +155,7 @@ bool KZTimerService::TimerStop(bool playSound)
 
 	FOR_EACH_VEC(eventListeners, i)
 	{
-		eventListeners[i]->OnTimerStopped(this->player);
+		eventListeners[i]->OnTimerStopped(this->player, this->currentCourse);
 	}
 
 	return true;
@@ -284,9 +284,9 @@ void KZTimerService::PrintEndTimeString()
 		case 0:
 		{
 			// clang-format off
-			KZLanguageService::PrintChatAll(true, strlen(this->currentCourse) > 0 ? "Beat Course (PRO)" : "Beat Map (PRO)",
-				this->player->GetName(),
-				this->currentCourse,
+			KZLanguageService::PrintChatAll(true, strlen(this->currentCourse->name) > 0 ? "Beat Course (PRO)" : "Beat Map (PRO)",
+				this->player->GetController()->m_iszPlayerName(),
+				this->currentCourse->name,
 				time,
 				this->player->modeService->GetModeShortName(),
 				this->player->styleService->GetStyleShortName());
@@ -301,9 +301,9 @@ void KZTimerService::PrintEndTimeString()
 				CBasePlayerController *controller = g_pKZPlayerManager->players[i]->GetController(); 
 				if (controller) 
 				{ 
-					g_pKZPlayerManager->ToPlayer(i)->languageService->PrintChat(true, false, strlen(this->currentCourse) > 0 ? "Beat Course (Standard)" : "Beat Map (Standard)",
-						this->player->GetName(),
-						this->currentCourse,
+					g_pKZPlayerManager->ToPlayer(i)->languageService->PrintChat(true, false, strlen(this->currentCourse->name) > 0 ? "Beat Course (Standard)" : "Beat Map (Standard)",
+						this->player->GetController()->m_iszPlayerName(),
+						this->currentCourse->name,
 						time,
 						this->player->modeService->GetModeShortName(),
 						this->player->styleService->GetStyleShortName(),
@@ -321,9 +321,9 @@ void KZTimerService::PrintEndTimeString()
 				CBasePlayerController *controller = g_pKZPlayerManager->players[i]->GetController(); 
 				if (controller) 
 				{ 
-					g_pKZPlayerManager->ToPlayer(i)->languageService->PrintChat(true, false, strlen(this->currentCourse) > 0 ? "Beat Course (Standard)" : "Beat Map (Standard)",
-						this->player->GetName(),
-						this->currentCourse,
+					g_pKZPlayerManager->ToPlayer(i)->languageService->PrintChat(true, false, strlen(this->currentCourse->name) > 0 ? "Beat Course (Standard)" : "Beat Map (Standard)",
+						this->player->GetController()->m_iszPlayerName(),
+						this->currentCourse->name,
 						time,
 						this->player->modeService->GetModeShortName(),
 						this->player->styleService->GetStyleShortName(),
@@ -477,7 +477,7 @@ void KZTimerService::Reset()
 {
 	this->timerRunning = {};
 	this->currentTime = {};
-	this->currentCourse[0] = 0;
+	this->currentCourse = nullptr;
 	this->lastEndTime = {};
 	this->lastFalseEndTime = {};
 	this->lastStartSoundTime = {};

@@ -4,8 +4,8 @@
 
 class KZHUDServiceTimerEventListener : public KZTimerServiceEventListener
 {
-	virtual void OnTimerStopped(KZPlayer *player) override;
-	virtual void OnTimerEndPost(KZPlayer *player, const char *courseName, f32 time, u32 teleportsUsed) override;
+	virtual void OnTimerStopped(KZPlayer *player, const KzCourseDescriptor *course) override;
+	virtual void OnTimerEndPost(KZPlayer *player, const KzCourseDescriptor *course, f32 time, u32 teleportsUsed) override;
 };
 
 #define KZ_HUD_TIMER_STOPPED_GRACE_TIME 3.0f

@@ -101,7 +101,7 @@ KZPlayer *KZSpecService::GetNextSpectator(KZPlayer *current)
 	return nullptr;
 }
 
-void KZSpecServiceTimerEventListener::OnTimerStartPost(KZPlayer *player, const char *courseName)
+void KZSpecServiceTimerEventListener::OnTimerStartPost(KZPlayer *player, const KzCourseDescriptor *course)
 {
 	player->specService->Reset();
 }
