@@ -285,7 +285,7 @@ void KZTimerService::PrintEndTimeString()
 		{
 			// clang-format off
 			KZLanguageService::PrintChatAll(true, strlen(this->currentCourse->name) > 0 ? "Beat Course (PRO)" : "Beat Map (PRO)",
-				this->player->GetController()->m_iszPlayerName(),
+				this->player->GetName(),
 				this->currentCourse->name,
 				time,
 				this->player->modeService->GetModeShortName(),
