@@ -7,6 +7,7 @@
 
 #include "cs2kz.h"
 #include "ctimer.h"
+#include "kz/jumpstats/kz_jumpstats.h"
 #include "kz/quiet/kz_quiet.h"
 #include "kz/timer/kz_timer.h"
 #include "kz/mappingapi/kz_mappingapi.h"
@@ -25,97 +26,98 @@ class EntListener : public IEntityListener
 
 // CBaseEntity
 SH_DECL_MANUALHOOK1_void(StartTouch, 0, 0, 0, CBaseEntity *);
-internal void Hook_OnStartTouch(CBaseEntity *pOther);
-internal void Hook_OnStartTouchPost(CBaseEntity *pOther);
+static_function void Hook_OnStartTouch(CBaseEntity *pOther);
+static_function void Hook_OnStartTouchPost(CBaseEntity *pOther);
 SH_DECL_MANUALHOOK1_void(Touch, 0, 0, 0, CBaseEntity *);
-internal void Hook_OnTouch(CBaseEntity *pOther);
-internal void Hook_OnTouchPost(CBaseEntity *pOther);
+static_function void Hook_OnTouch(CBaseEntity *pOther);
+static_function void Hook_OnTouchPost(CBaseEntity *pOther);
 SH_DECL_MANUALHOOK1_void(EndTouch, 0, 0, 0, CBaseEntity *);
-internal void Hook_OnEndTouch(CBaseEntity *pOther);
-internal void Hook_OnEndTouchPost(CBaseEntity *pOther);
+static_function void Hook_OnEndTouch(CBaseEntity *pOther);
+static_function void Hook_OnEndTouchPost(CBaseEntity *pOther);
 SH_DECL_MANUALHOOK3_void(Teleport, 0, 0, 0, const Vector *, const QAngle *, const Vector *);
-internal void Hook_OnTeleport(const Vector *newPosition, const QAngle *newAngles, const Vector *newVelocity);
+static_function void Hook_OnTeleport(const Vector *newPosition, const QAngle *newAngles, const Vector *newVelocity);
 
 // CCSPlayerController
-internal int changeTeamHook {};
+static_global int changeTeamHook {};
 SH_DECL_MANUALHOOK1_void(ChangeTeam, 0, 0, 0, int);
-internal void Hook_OnChangeTeamPost(i32 team);
+static_function void Hook_OnChangeTeamPost(i32 team);
 
 // ISource2GameEntities
 SH_DECL_HOOK7_void(ISource2GameEntities, CheckTransmit, SH_NOATTRIB, false, CCheckTransmitInfo **, int, CBitVec<16384> &,
 				   const Entity2Networkable_t **, const uint16 *, int, bool);
-internal void Hook_CheckTransmit(CCheckTransmitInfo **pInfo, int, CBitVec<16384> &, const Entity2Networkable_t **pNetworkables,
-								 const uint16 *pEntityIndicies, int nEntities, bool bEnablePVSBits);
+static_function void Hook_CheckTransmit(CCheckTransmitInfo **pInfo, int, CBitVec<16384> &, const Entity2Networkable_t **pNetworkables,
+										const uint16 *pEntityIndicies, int nEntities, bool bEnablePVSBits);
 
 // ISource2Server
 SH_DECL_HOOK3_void(ISource2Server, GameFrame, SH_NOATTRIB, false, bool, bool, bool);
-internal void Hook_GameFrame(bool simulating, bool bFirstTick, bool bLastTick);
+static_function void Hook_GameFrame(bool simulating, bool bFirstTick, bool bLastTick);
 SH_DECL_HOOK0_void(ISource2Server, GameServerSteamAPIActivated, SH_NOATTRIB, 0);
-internal void Hook_GameServerSteamAPIActivated();
+static_function void Hook_GameServerSteamAPIActivated();
 SH_DECL_HOOK0_void(ISource2Server, GameServerSteamAPIDeactivated, SH_NOATTRIB, 0);
-internal void Hook_GameServerSteamAPIDeactivated();
+static_function void Hook_GameServerSteamAPIDeactivated();
 
 // ISource2GameClients
 SH_DECL_HOOK6(ISource2GameClients, ClientConnect, SH_NOATTRIB, false, bool, CPlayerSlot, const char *, uint64, const char *, bool, CBufferString *);
-internal bool Hook_ClientConnect(CPlayerSlot slot, const char *pszName, uint64 xuid, const char *pszNetworkID, bool unk1,
-								 CBufferString *pRejectReason);
+static_function bool Hook_ClientConnect(CPlayerSlot slot, const char *pszName, uint64 xuid, const char *pszNetworkID, bool unk1,
+										CBufferString *pRejectReason);
 
 SH_DECL_HOOK6_void(ISource2GameClients, OnClientConnected, SH_NOATTRIB, false, CPlayerSlot, const char *, uint64, const char *, const char *, bool);
-internal void Hook_OnClientConnected(CPlayerSlot slot, const char *pszName, uint64 xuid, const char *pszNetworkID, const char *pszAddress,
-									 bool bFakePlayer);
+static_function void Hook_OnClientConnected(CPlayerSlot slot, const char *pszName, uint64 xuid, const char *pszNetworkID, const char *pszAddress,
+											bool bFakePlayer);
 
 SH_DECL_HOOK1_void(ISource2GameClients, ClientFullyConnect, SH_NOATTRIB, false, CPlayerSlot);
-internal void Hook_ClientFullyConnect(CPlayerSlot slot);
+static_function void Hook_ClientFullyConnect(CPlayerSlot slot);
 
 SH_DECL_HOOK4_void(ISource2GameClients, ClientPutInServer, SH_NOATTRIB, false, CPlayerSlot, char const *, int, uint64);
-internal void Hook_ClientPutInServer(CPlayerSlot slot, char const *pszName, int type, uint64 xuid);
+static_function void Hook_ClientPutInServer(CPlayerSlot slot, char const *pszName, int type, uint64 xuid);
 
 SH_DECL_HOOK4_void(ISource2GameClients, ClientActive, SH_NOATTRIB, false, CPlayerSlot, bool, const char *, uint64);
-internal void Hook_ClientActive(CPlayerSlot slot, bool bLoadGame, const char *pszName, uint64 xuid);
+static_function void Hook_ClientActive(CPlayerSlot slot, bool bLoadGame, const char *pszName, uint64 xuid);
 
 SH_DECL_HOOK5_void(ISource2GameClients, ClientDisconnect, SH_NOATTRIB, false, CPlayerSlot, ENetworkDisconnectionReason, const char *, uint64,
 				   const char *);
-internal void Hook_ClientDisconnect(CPlayerSlot slot, ENetworkDisconnectionReason reason, const char *pszName, uint64 xuid, const char *pszNetworkID);
+static_function void Hook_ClientDisconnect(CPlayerSlot slot, ENetworkDisconnectionReason reason, const char *pszName, uint64 xuid,
+										   const char *pszNetworkID);
 
 SH_DECL_HOOK1_void(ISource2GameClients, ClientVoice, SH_NOATTRIB, false, CPlayerSlot);
-internal void Hook_ClientVoice(CPlayerSlot slot);
+static_function void Hook_ClientVoice(CPlayerSlot slot);
 
 SH_DECL_HOOK2_void(ISource2GameClients, ClientCommand, SH_NOATTRIB, false, CPlayerSlot, const CCommand &);
-internal void Hook_ClientCommand(CPlayerSlot slot, const CCommand &args);
+static_function void Hook_ClientCommand(CPlayerSlot slot, const CCommand &args);
 
 // INetworkServerService
 SH_DECL_HOOK3_void(INetworkServerService, StartupServer, SH_NOATTRIB, 0, const GameSessionConfiguration_t &, ISource2WorldSession *, const char *);
-internal void Hook_StartupServer(const GameSessionConfiguration_t &config, ISource2WorldSession *, const char *);
+static_function void Hook_StartupServer(const GameSessionConfiguration_t &config, ISource2WorldSession *, const char *);
 
 // IGameEventManager2
 SH_DECL_HOOK2(IGameEventManager2, FireEvent, SH_NOATTRIB, false, bool, IGameEvent *, bool);
-internal bool Hook_FireEvent(IGameEvent *event, bool bDontBroadcast);
+static_function bool Hook_FireEvent(IGameEvent *event, bool bDontBroadcast);
 
 // ICvar
 SH_DECL_HOOK3_void(ICvar, DispatchConCommand, SH_NOATTRIB, 0, ConCommandHandle, const CCommandContext &, const CCommand &);
-internal void Hook_DispatchConCommand(ConCommandHandle cmd, const CCommandContext &ctx, const CCommand &args);
+static_function void Hook_DispatchConCommand(ConCommandHandle cmd, const CCommandContext &ctx, const CCommand &args);
 
 // IGameEventSystem
 SH_DECL_HOOK8_void(IGameEventSystem, PostEventAbstract, SH_NOATTRIB, 0, CSplitScreenSlot, bool, int, const uint64 *, INetworkMessageInternal *,
 				   const CNetMessage *, unsigned long, NetChannelBufType_t);
-internal void Hook_PostEvent(CSplitScreenSlot nSlot, bool bLocalOnly, int nClientCount, const uint64 *clients, INetworkMessageInternal *pEvent,
-							 const CNetMessage *pData, unsigned long nSize, NetChannelBufType_t bufType);
+static_function void Hook_PostEvent(CSplitScreenSlot nSlot, bool bLocalOnly, int nClientCount, const uint64 *clients, INetworkMessageInternal *pEvent,
+									const CNetMessage *pData, unsigned long nSize, NetChannelBufType_t bufType);
 
 // CEntitySystem
 SH_DECL_HOOK2_void(CEntitySystem, Spawn, SH_NOATTRIB, false, int, const EntitySpawnInfo_t *);
-internal void Hook_CEntitySystem_Spawn_Post(int nCount, const EntitySpawnInfo_t *pInfo);
+static_function void Hook_CEntitySystem_Spawn_Post(int nCount, const EntitySpawnInfo_t *pInfo);
 
 // INetworkGameServer
-internal int activateServerHook {};
+static_global int activateServerHook {};
 SH_DECL_HOOK0(INetworkGameServer, ActivateServer, SH_NOATTRIB, false, bool);
-internal bool Hook_ActivateServer();
+static_function bool Hook_ActivateServer();
 
 // IGameSystem
-internal int serverGamePostSimulateHook {};
+static_global int serverGamePostSimulateHook {};
 SH_DECL_HOOK1_void(IGameSystem, ServerGamePostSimulate, SH_NOATTRIB, false, const EventServerGamePostSimulate_t *);
-internal void Hook_ServerGamePostSimulate(const EventServerGamePostSimulate_t *);
+static_function void Hook_ServerGamePostSimulate(const EventServerGamePostSimulate_t *);
 
-internal bool ignoreTouchEvent {};
+static_global bool ignoreTouchEvent {};
 
 void hooks::Initialize()
 {
@@ -201,7 +203,7 @@ void hooks::Cleanup()
 }
 
 // Entity hooks
-internal void AddEntityHooks(CBaseEntity *entity)
+static_function void AddEntityHooks(CBaseEntity *entity)
 {
 	if (!V_stricmp(entity->GetClassname(), "cs_player_controller") && !changeTeamHook)
 	{
@@ -226,7 +228,7 @@ internal void AddEntityHooks(CBaseEntity *entity)
 	}
 }
 
-internal void RemoveEntityHooks(CBaseEntity *entity)
+static_function void RemoveEntityHooks(CBaseEntity *entity)
 {
 	if (V_strstr(entity->GetClassname(), "trigger_") || !V_stricmp(entity->GetClassname(), "player"))
 	{
@@ -285,7 +287,7 @@ void hooks::HookEntities()
 }
 
 // CBaseEntity
-internal void Hook_OnStartTouch(CBaseEntity *pOther)
+static_function void Hook_OnStartTouch(CBaseEntity *pOther)
 {
 	CBaseEntity *pThis = META_IFACEPTR(CBaseEntity);
 	CCSPlayerPawn *pawn = NULL;
@@ -305,17 +307,23 @@ internal void Hook_OnStartTouch(CBaseEntity *pOther)
 		RETURN_META(MRES_IGNORED);
 	}
 	MovementPlayer *player = g_pKZPlayerManager->ToPlayer(pawn);
+
+	player->velocityBeforeTriggerTouch = pawn->m_vecAbsVelocity();
+	player->originBeforeTriggerTouch = player->GetPlayerPawn()->m_CBodyComponent()->m_pSceneNode()->m_vecAbsOrigin();
+
 	if (!player->OnTriggerStartTouch(trigger))
 	{
 		ignoreTouchEvent = true;
 		RETURN_META(MRES_SUPERCEDE);
 	}
+
 	// Don't start touch this trigger twice.
 	if (player->touchedTriggers.HasElement(trigger->GetRefEHandle()))
 	{
 		ignoreTouchEvent = true;
 		RETURN_META(MRES_SUPERCEDE);
 	}
+
 	// StartTouch is a two way interaction. Are we waiting for this trigger?
 	if (player->pendingStartTouchTriggers.HasElement(trigger->GetRefEHandle()))
 	{
@@ -323,13 +331,15 @@ internal void Hook_OnStartTouch(CBaseEntity *pOther)
 		player->pendingStartTouchTriggers.FindAndRemove(trigger->GetRefEHandle());
 		RETURN_META(MRES_IGNORED);
 	}
+
 	// Must be a new interaction!
 	player->pendingStartTouchTriggers.AddToTail(trigger->GetRefEHandle());
 	RETURN_META(MRES_IGNORED);
 }
 
-internal void Hook_OnStartTouchPost(CBaseEntity *pOther)
+static_function void Hook_OnStartTouchPost(CBaseEntity *pOther)
 {
+	CBaseEntity *pThis = META_IFACEPTR(CBaseEntity);
 	if (ignoreTouchEvent)
 	{
 		ignoreTouchEvent = false;
@@ -347,16 +357,32 @@ internal void Hook_OnStartTouchPost(CBaseEntity *pOther)
 	{
 		RETURN_META(MRES_IGNORED);
 	}
-	CBaseEntity *pThis = META_IFACEPTR(CBaseEntity);
-	if (player && !V_stricmp(pThis->GetClassname(), "trigger_multiple"))
+
+	if (!V_stricmp(pThis->GetClassname(), "trigger_multiple"))
 	{
 		CBaseTrigger *trigger = static_cast<CBaseTrigger *>(pThis);
 		g_pMappingApi->OnTriggerMultipleStartTouchPost(player, trigger);
 	}
+
+	// Player has a modified velocity through trigger touching, take this into account.
+	bool modifiedVelocity = player->velocityBeforeTriggerTouch != player->GetPlayerPawn()->m_vecAbsVelocity();
+	if (player->processingMovement && modifiedVelocity)
+	{
+		player->SetVelocity(player->currentMoveData->m_vecVelocity - player->moveDataPre.m_vecVelocity + player->GetPlayerPawn()->m_vecAbsVelocity());
+		player->jumpstatsService->InvalidateJumpstats("Externally modified");
+	}
+
+	bool modifiedOrigin = player->originBeforeTriggerTouch != player->GetPlayerPawn()->m_CBodyComponent()->m_pSceneNode()->m_vecAbsOrigin();
+	if (player->processingMovement && modifiedOrigin)
+	{
+		player->SetOrigin(player->GetPlayerPawn()->m_CBodyComponent()->m_pSceneNode()->m_vecAbsOrigin());
+		player->jumpstatsService->InvalidateJumpstats("Externally modified");
+	}
+
 	RETURN_META(MRES_IGNORED);
 }
 
-internal void Hook_OnTouch(CBaseEntity *pOther)
+static_function void Hook_OnTouch(CBaseEntity *pOther)
 {
 	CBaseEntity *pThis = META_IFACEPTR(CBaseEntity);
 	CCSPlayerPawn *pawn = NULL;
@@ -371,23 +397,30 @@ internal void Hook_OnTouch(CBaseEntity *pOther)
 		pawn = static_cast<CCSPlayerPawn *>(pOther);
 		trigger = static_cast<CBaseTrigger *>(pThis);
 	}
+
 	if (V_stricmp(pawn->GetClassname(), "player") != 0 || !V_strstr(trigger->GetClassname(), "trigger_"))
 	{
 		RETURN_META(MRES_IGNORED);
 	}
+
 	MovementPlayer *player = g_pKZPlayerManager->ToPlayer(pawn);
+
+	player->velocityBeforeTriggerTouch = pawn->m_vecAbsVelocity();
+	player->originBeforeTriggerTouch = player->GetPlayerPawn()->m_CBodyComponent()->m_pSceneNode()->m_vecAbsOrigin();
+
 	// This pawn have no controller attached to it. Ignore.
 	if (!player)
 	{
 		RETURN_META(MRES_IGNORED);
 	}
+
 	if (!player->OnTriggerTouch(trigger))
 	{
 		ignoreTouchEvent = true;
 		RETURN_META(MRES_SUPERCEDE);
 	}
 
-	if (player->touchedTriggers.HasElement(trigger->GetRefEHandle()))
+	if (player->touchedTriggers.HasElement(trigger->GetRefEHandle()) || player->pendingStartTouchTriggers.HasElement(trigger->GetRefEHandle()))
 	{
 		RETURN_META(MRES_IGNORED);
 	}
@@ -396,7 +429,7 @@ internal void Hook_OnTouch(CBaseEntity *pOther)
 	RETURN_META(MRES_SUPERCEDE);
 }
 
-internal void Hook_OnTouchPost(CBaseEntity *pOther)
+static_function void Hook_OnTouchPost(CBaseEntity *pOther)
 {
 	if (ignoreTouchEvent)
 	{
@@ -404,10 +437,29 @@ internal void Hook_OnTouchPost(CBaseEntity *pOther)
 		RETURN_META(MRES_SUPERCEDE);
 	}
 	ignoreTouchEvent = false;
+
+	// Player has a modified velocity through trigger touching, take this into account.
+	if (!V_stricmp(pOther->GetClassname(), "player"))
+	{
+		KZPlayer *player = g_pKZPlayerManager->ToPlayer(static_cast<CCSPlayerPawn *>(pOther));
+		bool modifiedVelocity = player->velocityBeforeTriggerTouch != player->GetPlayerPawn()->m_vecAbsVelocity();
+		if (player->processingMovement && modifiedVelocity)
+		{
+			player->SetVelocity(player->currentMoveData->m_vecVelocity - player->moveDataPre.m_vecVelocity
+								+ player->GetPlayerPawn()->m_vecAbsVelocity());
+			player->jumpstatsService->InvalidateJumpstats("Externally modified");
+		}
+		bool modifiedOrigin = player->originBeforeTriggerTouch != player->GetPlayerPawn()->m_CBodyComponent()->m_pSceneNode()->m_vecAbsOrigin();
+		if (player->processingMovement && modifiedOrigin)
+		{
+			player->SetOrigin(player->GetPlayerPawn()->m_CBodyComponent()->m_pSceneNode()->m_vecAbsOrigin());
+			player->jumpstatsService->InvalidateJumpstats("Externally modified");
+		}
+	}
 	RETURN_META(MRES_IGNORED);
 }
 
-internal void Hook_OnEndTouch(CBaseEntity *pOther)
+static_function void Hook_OnEndTouch(CBaseEntity *pOther)
 {
 	CBaseEntity *pThis = META_IFACEPTR(CBaseEntity);
 	CCSPlayerPawn *pawn = NULL;
@@ -451,8 +503,9 @@ internal void Hook_OnEndTouch(CBaseEntity *pOther)
 	RETURN_META(MRES_SUPERCEDE);
 }
 
-internal void Hook_OnEndTouchPost(CBaseEntity *pOther)
+static_function void Hook_OnEndTouchPost(CBaseEntity *pOther)
 {
+	CBaseEntity *pThis = META_IFACEPTR(CBaseEntity);
 	if (ignoreTouchEvent)
 	{
 		ignoreTouchEvent = false;
@@ -479,7 +532,7 @@ internal void Hook_OnEndTouchPost(CBaseEntity *pOther)
 	RETURN_META(MRES_IGNORED);
 }
 
-internal void Hook_OnTeleport(const Vector *newPosition, const QAngle *newAngles, const Vector *newVelocity)
+static_function void Hook_OnTeleport(const Vector *newPosition, const QAngle *newAngles, const Vector *newVelocity)
 {
 	CBaseEntity *this_ = META_IFACEPTR(CBaseEntity);
 	// Just to be sure.
@@ -492,7 +545,7 @@ internal void Hook_OnTeleport(const Vector *newPosition, const QAngle *newAngles
 }
 
 // CCSPlayerController
-internal void Hook_OnChangeTeamPost(i32 team)
+static_function void Hook_OnChangeTeamPost(i32 team)
 {
 	CCSPlayerController *controller = META_IFACEPTR(CCSPlayerController);
 	MovementPlayer *player = g_pKZPlayerManager->ToPlayer(controller);
@@ -503,18 +556,18 @@ internal void Hook_OnChangeTeamPost(i32 team)
 }
 
 // ISource2GameEntities
-internal void Hook_CheckTransmit(CCheckTransmitInfo **pInfo, int infoCount, CBitVec<16384> &, const Entity2Networkable_t **pNetworkables,
-								 const uint16 *pEntityIndicies, int nEntities, bool bEnablePVSBits)
+static_function void Hook_CheckTransmit(CCheckTransmitInfo **pInfo, int infoCount, CBitVec<16384> &, const Entity2Networkable_t **pNetworkables,
+										const uint16 *pEntityIndicies, int nEntities, bool bEnablePVSBits)
 {
 	KZ::quiet::OnCheckTransmit(pInfo, infoCount);
 	RETURN_META(MRES_IGNORED);
 }
 
 // ISource2Server
-internal void Hook_GameFrame(bool simulating, bool bFirstTick, bool bLastTick)
+static_function void Hook_GameFrame(bool simulating, bool bFirstTick, bool bLastTick)
 {
 	g_KZPlugin.serverGlobals = *(g_pKZUtils->GetGlobals());
-	local_persist int entitySystemHook {};
+	static_persist int entitySystemHook {};
 	if (GameEntitySystem() && !entitySystemHook)
 	{
 		entitySystemHook = SH_ADD_HOOK(CEntitySystem, Spawn, GameEntitySystem(), SH_STATIC(Hook_CEntitySystem_Spawn_Post), false);
@@ -522,38 +575,38 @@ internal void Hook_GameFrame(bool simulating, bool bFirstTick, bool bLastTick)
 	RETURN_META(MRES_IGNORED);
 }
 
-internal void Hook_GameServerSteamAPIActivated() {}
+static_function void Hook_GameServerSteamAPIActivated() {}
 
-internal void Hook_GameServerSteamAPIDeactivated() {}
+static_function void Hook_GameServerSteamAPIDeactivated() {}
 
 // ISource2GameClients
-internal bool Hook_ClientConnect(CPlayerSlot slot, const char *pszName, uint64 xuid, const char *pszNetworkID, bool unk1,
-								 CBufferString *pRejectReason)
+static_function bool Hook_ClientConnect(CPlayerSlot slot, const char *pszName, uint64 xuid, const char *pszNetworkID, bool unk1,
+										CBufferString *pRejectReason)
 {
 	g_pKZPlayerManager->OnClientConnect(slot, pszName, xuid, pszNetworkID, unk1, pRejectReason);
 	RETURN_META_VALUE(MRES_IGNORED, true);
 }
 
-internal void Hook_OnClientConnected(CPlayerSlot slot, const char *pszName, uint64 xuid, const char *pszNetworkID, const char *pszAddress,
-									 bool bFakePlayer)
+static_function void Hook_OnClientConnected(CPlayerSlot slot, const char *pszName, uint64 xuid, const char *pszNetworkID, const char *pszAddress,
+											bool bFakePlayer)
 {
 	g_pKZPlayerManager->OnClientConnected(slot, pszName, xuid, pszNetworkID, pszAddress, bFakePlayer);
 	RETURN_META(MRES_IGNORED);
 }
 
-internal void Hook_ClientFullyConnect(CPlayerSlot slot)
+static_function void Hook_ClientFullyConnect(CPlayerSlot slot)
 {
 	g_pKZPlayerManager->OnClientFullyConnect(slot);
 	RETURN_META(MRES_IGNORED);
 }
 
-internal void Hook_ClientPutInServer(CPlayerSlot slot, char const *pszName, int type, uint64 xuid)
+static_function void Hook_ClientPutInServer(CPlayerSlot slot, char const *pszName, int type, uint64 xuid)
 {
 	g_pKZPlayerManager->OnClientPutInServer(slot, pszName, type, xuid);
 	RETURN_META(MRES_IGNORED);
 }
 
-internal void Hook_ClientActive(CPlayerSlot slot, bool bLoadGame, const char *pszName, uint64 xuid)
+static_function void Hook_ClientActive(CPlayerSlot slot, bool bLoadGame, const char *pszName, uint64 xuid)
 {
 	g_pKZPlayerManager->OnClientActive(slot, bLoadGame, pszName, xuid);
 	KZPlayer *player = g_pKZPlayerManager->ToPlayer(slot);
@@ -568,7 +621,8 @@ internal void Hook_ClientActive(CPlayerSlot slot, bool bLoadGame, const char *ps
 	RETURN_META(MRES_IGNORED);
 }
 
-internal void Hook_ClientDisconnect(CPlayerSlot slot, ENetworkDisconnectionReason reason, const char *pszName, uint64 xuid, const char *pszNetworkID)
+static_function void Hook_ClientDisconnect(CPlayerSlot slot, ENetworkDisconnectionReason reason, const char *pszName, uint64 xuid,
+										   const char *pszNetworkID)
 {
 	g_pKZPlayerManager->OnClientDisconnect(slot, reason, pszName, xuid, pszNetworkID);
 	KZPlayer *player = g_pKZPlayerManager->ToPlayer(slot);
@@ -584,12 +638,12 @@ internal void Hook_ClientDisconnect(CPlayerSlot slot, ENetworkDisconnectionReaso
 	RETURN_META(MRES_IGNORED);
 }
 
-internal void Hook_ClientVoice(CPlayerSlot slot)
+static_function void Hook_ClientVoice(CPlayerSlot slot)
 {
 	g_pKZPlayerManager->OnClientVoice(slot);
 }
 
-internal void Hook_ClientCommand(CPlayerSlot slot, const CCommand &args)
+static_function void Hook_ClientCommand(CPlayerSlot slot, const CCommand &args)
 {
 	if (META_RES result = scmd::OnClientCommand(slot, args))
 	{
@@ -599,14 +653,14 @@ internal void Hook_ClientCommand(CPlayerSlot slot, const CCommand &args)
 }
 
 // INetworkServerService
-internal void Hook_StartupServer(const GameSessionConfiguration_t &config, ISource2WorldSession *, const char *)
+static_function void Hook_StartupServer(const GameSessionConfiguration_t &config, ISource2WorldSession *, const char *)
 {
 	g_KZPlugin.AddonInit();
 	RETURN_META(MRES_IGNORED);
 }
 
 // IGameEventManager2
-internal bool Hook_FireEvent(IGameEvent *event, bool bDontBroadcast)
+static_function bool Hook_FireEvent(IGameEvent *event, bool bDontBroadcast)
 {
 	if (event)
 	{
@@ -651,7 +705,7 @@ internal bool Hook_FireEvent(IGameEvent *event, bool bDontBroadcast)
 }
 
 // ICvar
-internal void Hook_DispatchConCommand(ConCommandHandle cmd, const CCommandContext &ctx, const CCommand &args)
+static_function void Hook_DispatchConCommand(ConCommandHandle cmd, const CCommandContext &ctx, const CCommand &args)
 {
 	META_RES mres = scmd::OnDispatchConCommand(cmd, ctx, args);
 
@@ -659,22 +713,22 @@ internal void Hook_DispatchConCommand(ConCommandHandle cmd, const CCommandContex
 }
 
 // IGameEventSystem
-internal void Hook_PostEvent(CSplitScreenSlot nSlot, bool bLocalOnly, int nClientCount, const uint64 *clients, INetworkMessageInternal *pEvent,
-							 const CNetMessage *pData, unsigned long nSize, NetChannelBufType_t bufType)
+static_function void Hook_PostEvent(CSplitScreenSlot nSlot, bool bLocalOnly, int nClientCount, const uint64 *clients, INetworkMessageInternal *pEvent,
+									const CNetMessage *pData, unsigned long nSize, NetChannelBufType_t bufType)
 {
 	KZ::quiet::OnPostEvent(pEvent, pData, clients);
 }
 
 // CEntitySystem
-internal void Hook_CEntitySystem_Spawn_Post(int nCount, const EntitySpawnInfo_t *pInfo)
+static_function void Hook_CEntitySystem_Spawn_Post(int nCount, const EntitySpawnInfo_t *pInfo)
 {
 	g_pMappingApi->OnSpawnPost(nCount, pInfo);
 }
 
 // INetworkGameServer
-internal bool Hook_ActivateServer()
+static_function bool Hook_ActivateServer()
 {
-	local_persist bool infiniteAmmoUnlocked {};
+	static_persist bool infiniteAmmoUnlocked {};
 	if (!infiniteAmmoUnlocked)
 	{
 		infiniteAmmoUnlocked = true;
@@ -694,7 +748,7 @@ internal bool Hook_ActivateServer()
 }
 
 // IGameSystem
-internal void Hook_ServerGamePostSimulate(const EventServerGamePostSimulate_t *)
+static_function void Hook_ServerGamePostSimulate(const EventServerGamePostSimulate_t *)
 {
 	ProcessTimers();
 }
