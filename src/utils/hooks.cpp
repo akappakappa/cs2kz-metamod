@@ -523,7 +523,6 @@ static_function void Hook_OnEndTouchPost(CBaseEntity *pOther)
 	{
 		RETURN_META(MRES_IGNORED);
 	}
-	CBaseEntity *pThis = META_IFACEPTR(CBaseEntity);
 	if (player && !V_stricmp(pThis->GetClassname(), "trigger_multiple"))
 	{
 		CBaseTrigger *trigger = static_cast<CBaseTrigger *>(pThis);
