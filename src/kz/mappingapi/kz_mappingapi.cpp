@@ -3,6 +3,7 @@
 #include "movement/movement.h"
 #include "kz_mappingapi.h"
 #include "entity2/entitykeyvalues.h"
+#include "sdk/entity/cbasetrigger.h"
 
 #include "tier0/memdbgon.h"
 

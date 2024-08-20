@@ -1,4 +1,5 @@
 #include "kz_timer.h"
+#include "kz/db/kz_db.h"
 #include "../mode/kz_mode.h"
 #include "../style/kz_style.h"
 #include "../noclip/kz_noclip.h"
@@ -6,6 +7,12 @@
 #include "../language/kz_language.h"
 #include "utils/utils.h"
 #include "utils/simplecmds.h"
+
+static_global class KZDatabaseServiceEventListener_Timer : public KZDatabaseServiceEventListener
+{
+public:
+	virtual void OnMapSetup() override;
+} databaseEventListener;
 
 static_global CUtlVector<KZTimerServiceEventListener *> eventListeners;
 
@@ -122,15 +129,7 @@ bool KZTimerService::TimerEnd(const KzCourseDescriptor *course)
 
 	if (!this->player->GetPlayerPawn()->IsBot())
 	{
-		bool showMessage = true;
-		FOR_EACH_VEC(eventListeners, i)
-		{
-			showMessage &= eventListeners[i]->OnTimerEndMessage(this->player, course, time, teleportsUsed);
-		}
-		if (showMessage)
-		{
-			this->PrintEndTimeString();
-		}
+		KZ::timer::AddRunToAnnounceQueue(player, course->name, time, teleportsUsed);
 	}
 
 	FOR_EACH_VEC(eventListeners, i)
@@ -268,72 +267,8 @@ void KZTimerService::FormatTime(f64 time, char *output, u32 length, bool precise
 
 static_function std::string GetTeleportCountText(int tpCount, const char *language)
 {
-	return tpCount == 1 ? KZLanguageService::PrepareMessage(language, "1 Teleport Text")
-						: KZLanguageService::PrepareMessage(language, "2+ Teleports Text", tpCount);
-}
-
-void KZTimerService::PrintEndTimeString()
-{
-	CCSPlayerController *controller = this->player->GetController();
-	char time[32];
-	KZTimerService::FormatTime(this->GetTime(), time, sizeof(time));
-	char tpCountStr[128] = "";
-	u32 tpCount = this->player->checkpointService->GetTeleportCount();
-	switch (tpCount)
-	{
-		case 0:
-		{
-			// clang-format off
-			KZLanguageService::PrintChatAll(true, strlen(this->currentCourse->name) > 0 ? "Beat Course (PRO)" : "Beat Map (PRO)",
-				this->player->GetName(),
-				this->currentCourse->name,
-				time,
-				this->player->modeService->GetModeShortName(),
-				this->player->styleService->GetStyleShortName());
-			// clang-format on
-			break;
-		}
-		case 1:
-		{
-			// clang-format off
-			for (u32 i = 0; i < MAXPLAYERS + 1; i++) 
-			{ 
-				CBasePlayerController *controller = g_pKZPlayerManager->players[i]->GetController(); 
-				if (controller) 
-				{ 
-					g_pKZPlayerManager->ToPlayer(i)->languageService->PrintChat(true, false, strlen(this->currentCourse->name) > 0 ? "Beat Course (Standard)" : "Beat Map (Standard)",
-						this->player->GetController()->m_iszPlayerName(),
-						this->currentCourse->name,
-						time,
-						this->player->modeService->GetModeShortName(),
-						this->player->styleService->GetStyleShortName(),
-						KZLanguageService::PrepareMessage(g_pKZPlayerManager->ToPlayer(i)->languageService->GetLanguage(), "1 Teleport Text"));
-				}
-			}
-			// clang-format on
-			break;
-		}
-		default:
-		{
-			// clang-format off
-			for (u32 i = 0; i < MAXPLAYERS + 1; i++) 
-			{ 
-				CBasePlayerController *controller = g_pKZPlayerManager->players[i]->GetController(); 
-				if (controller) 
-				{ 
-					g_pKZPlayerManager->ToPlayer(i)->languageService->PrintChat(true, false, strlen(this->currentCourse->name) > 0 ? "Beat Course (Standard)" : "Beat Map (Standard)",
-						this->player->GetController()->m_iszPlayerName(),
-						this->currentCourse->name,
-						time,
-						this->player->modeService->GetModeShortName(),
-						this->player->styleService->GetStyleShortName(),
-						KZLanguageService::PrepareMessage(g_pKZPlayerManager->ToPlayer(i)->languageService->GetLanguage(), "2+ Teleports Text", tpCount));
-				}
-			}
-			// clang-format on
-			break;
-		}
-	}
+	return tpCount == 1 ? KZLanguageService::PrepareMessageWithLang(language, "1 Teleport Text")
+						: KZLanguageService::PrepareMessageWithLang(language, "2+ Teleports Text", tpCount);
 }
 
 void KZTimerService::Pause()
@@ -443,6 +378,7 @@ void KZTimerService::Resume(bool force)
 
 	// GOKZ: prevent noclip exploit
 	this->player->GetPlayerPawn()->m_Collision().m_CollisionGroup() = KZ_COLLISION_GROUP_STANDARD;
+	this->player->GetPlayerPawn()->CollisionRulesChanged();
 
 	this->paused = false;
 	if (this->GetTimerRunning())
@@ -642,8 +578,20 @@ static_function SCMD_CALLBACK(Command_KzPauseTimer)
 	return MRES_SUPERCEDE;
 }
 
+void KZTimerService::Init()
+{
+	KZDatabaseService::RegisterEventListener(&databaseEventListener);
+}
+
 void KZTimerService::RegisterCommands()
 {
 	scmd::RegisterCmd("kz_stop", Command_KzStopTimer);
 	scmd::RegisterCmd("kz_pause", Command_KzPauseTimer);
+	KZTimerService::RegisterPBCommand();
+	KZTimerService::RegisterRecordCommands();
+}
+
+void KZDatabaseServiceEventListener_Timer::OnMapSetup()
+{
+	KZ::timer::SetupCourses();
 }

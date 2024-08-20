@@ -4,15 +4,26 @@
 #include "igameeventsystem.h"
 #include "igamesystem.h"
 #include "utils/simplecmds.h"
+#include "utils/gamesystem.h"
+#include "steam/steam_gameserver.h"
 
 #include "cs2kz.h"
 #include "ctimer.h"
+#include "kz/kz.h"
 #include "kz/jumpstats/kz_jumpstats.h"
+#include "kz/option/kz_option.h"
 #include "kz/quiet/kz_quiet.h"
 #include "kz/timer/kz_timer.h"
 #include "kz/mappingapi/kz_mappingapi.h"
+#include "kz/db/kz_db.h"
 #include "utils/utils.h"
 #include "entityclass.h"
+
+#include "sdk/entity/cbasetrigger.h"
+
+#include "memdbgon.h"
+
+extern CSteamGameServerAPIContext g_steamAPI;
 
 class GameSessionConfiguration_t
 {
@@ -109,13 +120,17 @@ static_function void Hook_CEntitySystem_Spawn_Post(int nCount, const EntitySpawn
 
 // INetworkGameServer
 static_global int activateServerHook {};
-SH_DECL_HOOK0(INetworkGameServer, ActivateServer, SH_NOATTRIB, false, bool);
+SH_DECL_HOOK0(CNetworkGameServerBase, ActivateServer, SH_NOATTRIB, false, bool);
 static_function bool Hook_ActivateServer();
 
 // IGameSystem
 static_global int serverGamePostSimulateHook {};
 SH_DECL_HOOK1_void(IGameSystem, ServerGamePostSimulate, SH_NOATTRIB, false, const EventServerGamePostSimulate_t *);
 static_function void Hook_ServerGamePostSimulate(const EventServerGamePostSimulate_t *);
+
+static_global int buildGameSessionManifestHookID {};
+SH_DECL_HOOK1_void(IGameSystem, BuildGameSessionManifest, SH_NOATTRIB, false, const EventBuildGameSessionManifest_t *);
+static_function void Hook_BuildGameSessionManifest(const EventBuildGameSessionManifest_t *msg);
 
 static_global bool ignoreTouchEvent {};
 
@@ -152,9 +167,9 @@ void hooks::Initialize()
 	SH_ADD_HOOK(IGameEventSystem, PostEventAbstract, interfaces::pGameEventSystem, SH_STATIC(Hook_PostEvent), false);
 	// clang-format off
 	activateServerHook = SH_ADD_DVPHOOK(
-		INetworkGameServer, 
+		CNetworkGameServerBase, 
 		ActivateServer,
-		(INetworkGameServer *)modules::engine->FindVirtualTable("CNetworkGameServer"),
+		(CNetworkGameServerBase *)modules::engine->FindVirtualTable("CNetworkGameServer"),
 		SH_STATIC(Hook_ActivateServer), 
 		true
 	);
@@ -163,6 +178,13 @@ void hooks::Initialize()
 		ServerGamePostSimulate, 
 		(IGameSystem *)modules::server->FindVirtualTable("CEntityDebugGameSystem"),
 		SH_STATIC(Hook_ServerGamePostSimulate), 
+		true
+	);
+	buildGameSessionManifestHookID = SH_ADD_DVPHOOK(
+		IGameSystem, 
+		BuildGameSessionManifest, 
+		(IGameSystem *)modules::server->FindVirtualTable("CEntityDebugGameSystem"), 
+		SH_STATIC(Hook_BuildGameSessionManifest), 
 		true
 	);
 	// clang-format on
@@ -198,6 +220,8 @@ void hooks::Cleanup()
 	SH_REMOVE_HOOK_ID(activateServerHook);
 
 	SH_REMOVE_HOOK_ID(changeTeamHook);
+
+	SH_REMOVE_HOOK_ID(buildGameSessionManifestHookID);
 
 	GameEntitySystem()->RemoveListenerEntity(&entityListener);
 }
@@ -571,10 +595,17 @@ static_function void Hook_GameFrame(bool simulating, bool bFirstTick, bool bLast
 	{
 		entitySystemHook = SH_ADD_HOOK(CEntitySystem, Spawn, GameEntitySystem(), SH_STATIC(Hook_CEntitySystem_Spawn_Post), false);
 	}
+	KZ::timer::CheckAnnounceQueue();
+	KZ::timer::CheckPBRequests();
+	KZ::timer::CheckRecordRequests();
 	RETURN_META(MRES_IGNORED);
 }
 
-static_function void Hook_GameServerSteamAPIActivated() {}
+static_function void Hook_GameServerSteamAPIActivated()
+{
+	g_steamAPI.Init();
+	g_pKZPlayerManager->OnSteamAPIActivated();
+}
 
 static_function void Hook_GameServerSteamAPIDeactivated() {}
 
@@ -634,6 +665,7 @@ static_function void Hook_ClientDisconnect(CPlayerSlot slot, ENetworkDisconnecti
 		Warning("WARNING: Player pawn for slot %i not found!\n", slot.Get());
 	}
 	player->timerService->OnClientDisconnect();
+	player->optionService->OnClientDisconnect();
 	RETURN_META(MRES_IGNORED);
 }
 
@@ -677,6 +709,7 @@ static_function bool Hook_FireEvent(IGameEvent *event, bool bDontBroadcast)
 		{
 			interfaces::pEngine->ServerCommand("sv_full_alltalk 1");
 			KZTimerService::OnRoundStart();
+			KZ::misc::OnRoundStart();
 			hooks::HookEntities();
 		}
 		else if (V_stricmp(event->GetName(), "round_prestart") == 0)
@@ -706,8 +739,12 @@ static_function bool Hook_FireEvent(IGameEvent *event, bool bDontBroadcast)
 // ICvar
 static_function void Hook_DispatchConCommand(ConCommandHandle cmd, const CCommandContext &ctx, const CCommand &args)
 {
-	META_RES mres = scmd::OnDispatchConCommand(cmd, ctx, args);
+	if (KZOptionService::GetOptionInt("overridePlayerChat", true))
+	{
+		KZ::misc::ProcessConCommand(cmd, ctx, args);
+	}
 
+	META_RES mres = scmd::OnDispatchConCommand(cmd, ctx, args);
 	RETURN_META(mres);
 }
 
@@ -727,22 +764,16 @@ static_function void Hook_CEntitySystem_Spawn_Post(int nCount, const EntitySpawn
 // INetworkGameServer
 static_function bool Hook_ActivateServer()
 {
-	static_persist bool infiniteAmmoUnlocked {};
-	if (!infiniteAmmoUnlocked)
-	{
-		infiniteAmmoUnlocked = true;
-		auto cvarHandle = g_pCVar->FindConVar("sv_infinite_ammo");
-		if (cvarHandle.IsValid())
-		{
-			g_pCVar->GetConVar(cvarHandle)->flags &= ~FCVAR_CHEAT;
-		}
-		else
-		{
-			META_CONPRINTF("Warning: sv_infinite_ammo is not found!\n");
-		}
-	}
-
-	interfaces::pEngine->ServerCommand("exec cs2kz.cfg");
+	KZ::timer::ClearAnnounceQueue();
+	KZ::timer::SetupCourses();
+	KZ::misc::OnServerActivate();
+	CUtlString dir = g_pKZUtils->GetCurrentMapDirectory();
+	u64 id = g_pKZUtils->GetCurrentMapWorkshopID();
+	u64 size = g_pKZUtils->GetCurrentMapSize();
+	char md5[33];
+	g_pKZUtils->GetCurrentMapMD5(md5, sizeof(md5));
+	META_CONPRINTF("[KZ] Loading map %s, workshop ID %llu, size %llu, md5 %s\n", g_pKZUtils->GetCurrentMapVPK().Get(), id, size, md5);
+	KZDatabaseService::SetupMap();
 	RETURN_META_VALUE(MRES_IGNORED, 1);
 }
 
@@ -750,4 +781,15 @@ static_function bool Hook_ActivateServer()
 static_function void Hook_ServerGamePostSimulate(const EventServerGamePostSimulate_t *)
 {
 	ProcessTimers();
+}
+
+static_function void Hook_BuildGameSessionManifest(const EventBuildGameSessionManifest_t *msg)
+{
+	Warning("[CS2KZ] IGameSystem::BuildGameSessionManifest\n");
+	IEntityResourceManifest *pResourceManifest = msg->m_pResourceManifest;
+	if (g_KZPlugin.IsAddonMounted())
+	{
+		Warning("[CS2KZ] Precache kz soundevents \n");
+		pResourceManifest->AddResource(KZ_WORKSHOP_ADDONS_SNDEVENT_FILE);
+	}
 }

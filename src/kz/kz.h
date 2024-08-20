@@ -11,7 +11,8 @@
 #define KZ_SND_SET_CP "UIPanorama.round_report_odds_none"
 #define KZ_SND_DO_TP  "UIPanorama.round_report_odds_none"
 
-#define KZ_WORKSHOP_ADDONS_ID "3171124941"
+#define KZ_WORKSHOP_ADDONS_ID            "3171124941"
+#define KZ_WORKSHOP_ADDONS_SNDEVENT_FILE "soundevents/soundevents_kz.vsndevts"
 
 #define KZ_DEFAULT_CHAT_PREFIX  "{lime}KZ {grey}|{default}"
 #define KZ_DEFAULT_TIP_INTERVAL 75.0
@@ -24,10 +25,12 @@
 class KZPlayer;
 class KZAnticheatService;
 class KZCheckpointService;
+class KZDatabaseService;
 class KZGlobalService;
 class KZHUDService;
 class KZJumpstatsService;
 class KZLanguageService;
+class KZMapService;
 class KZMeasureService;
 class KZModeService;
 class KZNoclipService;
@@ -36,6 +39,7 @@ class KZQuietService;
 class KZRacingService;
 class KZSavelocService;
 class KZSpecService;
+class KZGotoService;
 class KZStyleService;
 class KZTimerService;
 class KZTipService;
@@ -49,8 +53,11 @@ public:
 		this->Init();
 	}
 
+	// General events
 	virtual void Init() override;
 	virtual void Reset() override;
+	virtual void OnPlayerActive() override;
+	virtual void OnAuthorized() override;
 
 	virtual META_RES GetPlayerMaxSpeed(f32 &maxSpeed) override;
 
@@ -58,6 +65,8 @@ public:
 	virtual void OnPhysicsSimulatePost() override;
 	virtual void OnProcessUsercmds(void *, int) override;
 	virtual void OnProcessUsercmdsPost(void *, int) override;
+	virtual void OnSetupMove(CUserCmd *) override;
+	virtual void OnSetupMovePost(CUserCmd *) override;
 	virtual void OnProcessMovement() override;
 	virtual void OnProcessMovementPost() override;
 	virtual void OnPlayerMove() override;
@@ -136,6 +145,7 @@ private:
 public:
 	KZAnticheatService *anticheatService {};
 	KZCheckpointService *checkpointService {};
+	KZDatabaseService *databaseService {};
 	KZGlobalService *globalService {};
 	KZHUDService *hudService {};
 	KZJumpstatsService *jumpstatsService {};
@@ -148,7 +158,9 @@ public:
 	KZRacingService *racingService {};
 	KZSavelocService *savelocService {};
 	KZSpecService *specService {};
+	KZGotoService *gotoService {};
 	KZStyleService *styleService {};
+	CUtlVector<KZStyleService *> styleServices {};
 	KZTimerService *timerService {};
 	KZTipService *tipService {};
 
@@ -196,10 +208,10 @@ public:
 	virtual void Reset() {}
 };
 
-class CKZPlayerManager : public CMovementPlayerManager
+class KZPlayerManager : public MovementPlayerManager
 {
 public:
-	CKZPlayerManager()
+	KZPlayerManager()
 	{
 		for (int i = 0; i < MAXPLAYERS + 1; i++)
 		{
@@ -223,13 +235,17 @@ public:
 	}
 };
 
-extern CKZPlayerManager *g_pKZPlayerManager;
+extern KZPlayerManager *g_pKZPlayerManager;
 
 namespace KZ
 {
 	namespace misc
 	{
+		void Init();
+		void OnServerActivate();
 		void RegisterCommands();
 		void JoinTeam(KZPlayer *player, int newTeam, bool restorePos = true);
+		void ProcessConCommand(ConCommandHandle cmd, const CCommandContext &ctx, const CCommand &args);
+		void OnRoundStart();
 	} // namespace misc
 };    // namespace KZ

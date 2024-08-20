@@ -2,7 +2,7 @@
 
 #include "utils/simplecmds.h"
 
-static_global KZSpecServiceTimerEventListener timerEventListener;
+static_global KZTimerServiceEventListener_Spec timerEventListener;
 
 void KZSpecService::Reset()
 {
@@ -101,7 +101,7 @@ KZPlayer *KZSpecService::GetNextSpectator(KZPlayer *current)
 	return nullptr;
 }
 
-void KZSpecServiceTimerEventListener::OnTimerStartPost(KZPlayer *player, const KzCourseDescriptor *course)
+void KZTimerServiceEventListener_Spec::OnTimerStartPost(KZPlayer *player, const KzCourseDescriptor *course)
 {
 	player->specService->Reset();
 }

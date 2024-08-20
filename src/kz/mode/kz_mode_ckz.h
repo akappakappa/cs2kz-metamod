@@ -89,6 +89,7 @@ class KZClassicModeService : public KZModeService
 		"0",         // sv_staminamax
 		"9999",      // sv_staminarecoveryrate
 		"0.7",       // sv_standable_normal
+		"64.0",      // sv_step_move_vel_min
 		"0",         // sv_timebetweenducks
 		"0.7",       // sv_walkable_normal
 		"10",        // sv_wateraccelerate
@@ -119,6 +120,8 @@ class KZClassicModeService : public KZModeService
 	f32 rightPreRatio {};
 	f32 bonusSpeed {};
 	f32 maxPre {};
+	f32 originalMaxSpeed {};
+	f32 tweakedMaxSpeed {};
 
 	bool didTPM {};
 	bool overrideTPM {};
@@ -132,6 +135,7 @@ class KZClassicModeService : public KZModeService
 
 public:
 	virtual void Reset() override;
+	virtual void Cleanup() override;
 	virtual const char *GetModeName() override;
 	virtual const char *GetModeShortName() override;
 
@@ -143,7 +147,7 @@ public:
 
 	virtual void OnPhysicsSimulate() override;
 	virtual void OnPhysicsSimulatePost() override;
-	virtual void OnProcessUsercmds(void *, int) override;
+	virtual void OnSetupMove(CUserCmd *pb) override;
 	virtual void OnProcessMovement() override;
 	virtual void OnProcessMovementPost() override;
 	virtual void OnCategorizePosition(bool bStayOnGround) override;

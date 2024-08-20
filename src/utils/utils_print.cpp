@@ -1,6 +1,7 @@
 #include "usermessages.pb.h"
 #include "public/networksystem/inetworkmessages.h"
 #include "igameeventsystem.h"
+#include "sdk/entity/cbaseplayercontroller.h"
 #include "sdk/recipientfilters.h"
 #include "utils.h"
 
@@ -265,7 +266,7 @@ void utils::ClientPrintFilter(IRecipientFilter *filter, int msg_dest, const char
 	msg->add_param(param4);
 
 	interfaces::pGameEventSystem->PostEventAbstract(0, false, filter, netmsg, msg, 0);
-	netmsg->DeallocateMessage(msg);
+	delete msg;
 }
 
 #define FORMAT_STRING(buffer) \
@@ -274,6 +275,28 @@ void utils::ClientPrintFilter(IRecipientFilter *filter, int msg_dest, const char
 	char buffer[512]; \
 	vsnprintf(buffer, sizeof(buffer), format, args); \
 	va_end(args);
+
+void utils::SayChat(CBaseEntity *entity, const char *format, ...)
+{
+	FORMAT_STRING(buffer);
+
+	char coloredBuffer[512];
+	if (!CFormat(coloredBuffer, sizeof(coloredBuffer), buffer))
+	{
+		Warning("utils::SayChat did not have enough space to print: %s\n", buffer);
+	}
+
+	INetworkMessageInternal *netmsg = g_pNetworkMessages->FindNetworkMessagePartial("SayText2");
+	auto msg = netmsg->AllocateMessage()->ToPB<CUserMessageSayText2>();
+	msg->set_entityindex(entity->entindex());
+	msg->set_messagename(coloredBuffer);
+	msg->set_chat(false);
+
+	CBroadcastRecipientFilter *filter = new CBroadcastRecipientFilter;
+
+	interfaces::pGameEventSystem->PostEventAbstract(0, false, filter, netmsg, msg, 0);
+	delete msg;
+}
 
 void utils::PrintConsole(CBaseEntity *entity, const char *format, ...)
 {
@@ -315,15 +338,18 @@ void utils::PrintHTMLCentre(CBaseEntity *entity, const char *format, ...)
 		return;
 	}
 
-	FORMAT_STRING(buffer);
+	CUtlString buffer;
+	va_list args;
+	va_start(args, format);
+	buffer.FormatV(format, args);
 
 	IGameEvent *event = interfaces::pGameEventManager->CreateEvent("show_survival_respawn_status");
 	if (!event)
 	{
 		return;
 	}
-	event->SetString("loc_token", buffer);
-	event->SetInt("duration", 5);
+	event->SetString("loc_token", buffer.Get());
+	event->SetInt("duration", 1);
 	event->SetInt("userid", -1);
 
 	CPlayerSlot slot = controller->entindex() - 1;
@@ -366,15 +392,18 @@ void utils::PrintAlertAll(const char *format, ...)
 
 void utils::PrintHTMLCentreAll(const char *format, ...)
 {
-	FORMAT_STRING(buffer);
+	CUtlString buffer;
+	va_list args;
+	va_start(args, format);
+	buffer.FormatV(format, args);
 
 	IGameEvent *event = interfaces::pGameEventManager->CreateEvent("show_survival_respawn_status");
 	if (!event)
 	{
 		return;
 	}
-	event->SetString("loc_token", buffer);
-	event->SetInt("duration", 5);
+	event->SetString("loc_token", buffer.Get());
+	event->SetInt("duration", 1);
 	event->SetInt("userid", -1);
 
 	interfaces::pGameEventManager->FireEvent(event);

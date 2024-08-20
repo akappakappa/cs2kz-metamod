@@ -19,6 +19,11 @@ public:
 		return MRES_IGNORED;
 	}
 
+	virtual bool IsCompatibleWithStyle(CUtlString style)
+	{
+		return true;
+	}
+
 	// Movement hooks
 	// These functions are always called after the mode service's functions.
 	virtual void OnPhysicsSimulate() {}
@@ -28,6 +33,10 @@ public:
 	virtual void OnProcessUsercmds(void *, int) {}
 
 	virtual void OnProcessUsercmdsPost(void *, int) {}
+
+	virtual void OnSetupMove(CUserCmd *) {}
+
+	virtual void OnSetupMovePost(CUserCmd *) {}
 
 	virtual void OnProcessMovement() {}
 
@@ -153,22 +162,36 @@ typedef KZStyleService *(*StyleServiceFactory)(KZPlayer *player);
 
 class KZStyleManager
 {
+public:
 	struct StylePluginInfo
 	{
-		PluginId id;
-		const char *shortName;
-		const char *longName;
-		StyleServiceFactory factory;
+		// -1 is for style that exists in the database (but not loaded in the plugin)
+		// -2 is for invalid style.
+		PluginId id = -2;
+		const char *shortName {};
+		const char *longName {};
+		StyleServiceFactory factory {};
+		char md5[33] {};
+		i32 databaseID = -1;
+		CCopyableUtlVector<CUtlString> incompatibleStyles;
 	};
 
-public:
-	virtual bool RegisterStyle(PluginId id, const char *shortName, const char *longName, StyleServiceFactory factory);
+	virtual bool RegisterStyle(PluginId id, const char *shortName, const char *longName, StyleServiceFactory factory,
+							   const char **incompatibleStyles = nullptr, u32 incompatibleStylesCount = 0);
 	virtual void UnregisterStyle(const char *styleName);
-	bool SwitchToStyle(KZPlayer *player, const char *styleName, bool silent = false, bool force = false);
 	void Cleanup();
 
+	void OnDatabaseSetup();
+
+	void AddStyle(KZPlayer *player, const char *styleName, bool silent = false);
+	void RemoveStyle(KZPlayer *player, const char *styleName, bool silent = false);
+	void ToggleStyle(KZPlayer *player, const char *styleName, bool silent = false);
+	void ClearStyles(KZPlayer *player, bool silent = false);
+	void RefreshStyles(KZPlayer *player);
+	void PrintActiveStyles(KZPlayer *player);
+	void PrintAllStyles(KZPlayer *player);
+
 private:
-	CUtlVector<StylePluginInfo> styleInfos;
 };
 
 extern KZStyleManager *g_pKZStyleManager;
@@ -178,6 +201,9 @@ namespace KZ::style
 	void InitStyleService(KZPlayer *player);
 	void InitStyleManager();
 	void LoadStylePlugins();
+	void UpdateStyleDatabaseID(CUtlString name, i32 id);
+	KZStyleManager::StylePluginInfo GetStyleInfo(KZStyleService *style);
+	KZStyleManager::StylePluginInfo GetStyleInfo(CUtlString styleName);
 
 	void RegisterCommands();
 }; // namespace KZ::style

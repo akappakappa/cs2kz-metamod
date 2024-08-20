@@ -1,26 +1,42 @@
 #include "../kz.h"
+#include "cs2kz.h"
 #include "kz_hud.h"
 #include "sdk/datatypes.h"
 #include "utils/utils.h"
 #include "utils/simplecmds.h"
 
-#include "../timer/kz_timer.h"
-#include "../language/kz_language.h"
-#include "../checkpoint/kz_checkpoint.h"
+#include "kz/option/kz_option.h"
+#include "kz/timer/kz_timer.h"
+#include "kz/language/kz_language.h"
+#include "kz/checkpoint/kz_checkpoint.h"
 
 #include "tier0/memdbgon.h"
 
 #define HUD_ON_GROUND_THRESHOLD 0.07f
-static_global KZHUDServiceTimerEventListener timerEventListener;
+
+static_global class KZTimerServiceEventListener_HUD : public KZTimerServiceEventListener
+{
+	virtual void OnTimerStopped(KZPlayer *player, const KzCourseDescriptor *course) override;
+	virtual void OnTimerEndPost(KZPlayer *player, const KzCourseDescriptor *course, f32 time, u32 teleportsUsed) override;
+} timerEventListener;
+
+static_global class KZOptionServiceEventListener_HUD : public KZOptionServiceEventListener
+{
+	virtual void OnPlayerPreferencesLoaded(KZPlayer *player)
+	{
+		player->hudService->ResetShowPanel();
+	}
+} optionEventListener;
 
 void KZHUDService::Init()
 {
 	KZTimerService::RegisterEventListener(&timerEventListener);
+	KZOptionService::RegisterEventListener(&optionEventListener);
 }
 
 void KZHUDService::Reset()
 {
-	this->showPanel = true;
+	this->showPanel = this->player->optionService->GetPreferenceBool("showPanel", true);
 	this->timerStoppedTime = {};
 	this->currentTimeWhenTimerStopped = {};
 }
@@ -34,16 +50,17 @@ std::string KZHUDService::GetSpeedText(const char *language)
 		 && g_pKZUtils->GetServerGlobals()->curtime - this->player->landingTime > HUD_ON_GROUND_THRESHOLD)
 		|| (this->player->GetPlayerPawn()->m_MoveType == MOVETYPE_LADDER && !player->IsButtonPressed(IN_JUMP)))
 	{
-		return KZLanguageService::PrepareMessage(language, "HUD - Speed Text", velocity.Length2D());
+		return KZLanguageService::PrepareMessageWithLang(language, "HUD - Speed Text", velocity.Length2D());
 	}
-	return KZLanguageService::PrepareMessage(language, "HUD - Speed Text (Takeoff)", velocity.Length2D(), this->player->takeoffVelocity.Length2D());
+	return KZLanguageService::PrepareMessageWithLang(language, "HUD - Speed Text (Takeoff)", velocity.Length2D(),
+													 this->player->takeoffVelocity.Length2D());
 }
 
 std::string KZHUDService::GetKeyText(const char *language)
 {
 	// clang-format off
 
-	return KZLanguageService::PrepareMessage(language, "HUD - Key Text",
+	return KZLanguageService::PrepareMessageWithLang(language, "HUD - Key Text",
 		this->player->IsButtonPressed(IN_MOVELEFT) ? 'A' : '_',
 		this->player->IsButtonPressed(IN_FORWARD) ? 'W' : '_',
 		this->player->IsButtonPressed(IN_BACK) ? 'S' : '_',
@@ -59,7 +76,7 @@ std::string KZHUDService::GetCheckpointText(const char *language)
 {
 	// clang-format off
 
-	return KZLanguageService::PrepareMessage(language, "HUD - Checkpoint Text",
+	return KZLanguageService::PrepareMessageWithLang(language, "HUD - Checkpoint Text",
 		this->player->checkpointService->GetCurrentCpIndex(),
 		this->player->checkpointService->GetCheckpointCount(),
 		this->player->checkpointService->GetTeleportCount()
@@ -82,10 +99,10 @@ std::string KZHUDService::GetTimerText(const char *language)
 
 
 		KZTimerService::FormatTime(time, timeText, sizeof(timeText));
-		return KZLanguageService::PrepareMessage(language, "HUD - Timer Text",
+		return KZLanguageService::PrepareMessageWithLang(language, "HUD - Timer Text",
 			timeText,
-			player->timerService->GetTimerRunning() ? "" : KZLanguageService::PrepareMessage(language, "HUD - Stopped Text").c_str(),
-			player->timerService->GetPaused() ? KZLanguageService::PrepareMessage(language, "HUD - Paused Text").c_str() : ""
+			player->timerService->GetTimerRunning() ? "" : KZLanguageService::PrepareMessageWithLang(language, "HUD - Stopped Text").c_str(),
+			player->timerService->GetPaused() ? KZLanguageService::PrepareMessageWithLang(language, "HUD - Paused Text").c_str() : ""
 		);
 		// clang-format on
 	}
@@ -107,11 +124,11 @@ void KZHUDService::DrawPanels(KZPlayer *target)
 	std::string speedText = this->GetSpeedText(language);
 
 	// clang-format off
-	std::string centerText = KZLanguageService::PrepareMessage(language, "HUD - Center Text", 
+	std::string centerText = KZLanguageService::PrepareMessageWithLang(language, "HUD - Center Text", 
 		keyText.c_str(), checkpointText.c_str(), timerText.c_str(), speedText.c_str());
-	std::string alertText = KZLanguageService::PrepareMessage(language, "HUD - Alert Text", 
+	std::string alertText = KZLanguageService::PrepareMessageWithLang(language, "HUD - Alert Text", 
 		keyText.c_str(), checkpointText.c_str(), timerText.c_str(), speedText.c_str());
-	std::string htmlText = KZLanguageService::PrepareMessage(language, "HUD - Html Center Text",
+	std::string htmlText = KZLanguageService::PrepareMessageWithLang(language, "HUD - Html Center Text",
 		keyText.c_str(), checkpointText.c_str(), timerText.c_str(), speedText.c_str());
 
 	// clang-format on
@@ -135,28 +152,40 @@ void KZHUDService::DrawPanels(KZPlayer *target)
 	}
 }
 
+void KZHUDService::ResetShowPanel()
+{
+	this->showPanel = this->player->optionService->GetPreferenceBool("showPanel", true);
+}
+
 void KZHUDService::TogglePanel()
 {
 	this->showPanel = !this->showPanel;
+	this->player->optionService->SetPreferenceBool("showPanel", this->showPanel);
 	if (!this->showPanel)
 	{
-		utils::PrintAlert(this->player->GetController(), "");
-		utils::PrintCentre(this->player->GetController(), "");
+		utils::PrintAlert(this->player->GetController(), "#SFUI_EmptyString");
+		utils::PrintCentre(this->player->GetController(), "#SFUI_EmptyString");
+		this->player->languageService->PrintHTMLCentre(false, false, "HUD - HTML Panel Disabled");
 	}
 }
 
 void KZHUDService::OnTimerStopped(f64 currentTimeWhenTimerStopped)
 {
+	// g_pKZUtils->GetServerGlobals() becomes invalid when the plugin is unloading.
+	if (g_KZPlugin.unloading)
+	{
+		return;
+	}
 	this->timerStoppedTime = g_pKZUtils->GetServerGlobals()->curtime;
 	this->currentTimeWhenTimerStopped = currentTimeWhenTimerStopped;
 }
 
-void KZHUDServiceTimerEventListener::OnTimerStopped(KZPlayer *player, const KzCourseDescriptor *course)
+void KZTimerServiceEventListener_HUD::OnTimerStopped(KZPlayer *player, const KzCourseDescriptor *course)
 {
 	player->hudService->OnTimerStopped(player->timerService->GetTime());
 }
 
-void KZHUDServiceTimerEventListener::OnTimerEndPost(KZPlayer *player, const KzCourseDescriptor *course, f32 time, u32 teleportsUsed)
+void KZTimerServiceEventListener_HUD::OnTimerEndPost(KZPlayer *player, const KzCourseDescriptor *course, f32 time, u32 teleportsUsed)
 {
 	player->hudService->OnTimerStopped(time);
 }

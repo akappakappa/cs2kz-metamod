@@ -10,12 +10,12 @@ class CCSPlayer_MovementServices;
 #include "sdk/datatypes.h"
 #include "sdk/services.h"
 // TODO: better error sound
-#define MV_SND_ERROR       "Buttons.snd8"
-#define MV_SND_TIMER_START "Buttons.snd9"
-#define MV_SND_TIMER_END   "UI.DeathMatch.LevelUp"
+#define MV_SND_ERROR "Buttons.snd8"
 
 class CCSPlayerController;
 class MovementPlayer;
+class CCSPlayerPawnBase;
+class CUserCmd;
 
 namespace movement
 {
@@ -23,6 +23,7 @@ namespace movement
 
 	void FASTCALL Detour_PhysicsSimulate(CCSPlayerController *);
 	f32 FASTCALL Detour_GetMaxSpeed(CCSPlayerPawn *);
+	void FASTCALL Detour_SetupMove(CCSPlayer_MovementServices *, CUserCmd *, CMoveData *);
 	i32 FASTCALL Detour_ProcessUsercmds(CCSPlayerController *, void *, int, bool, float);
 	void FASTCALL Detour_ProcessMovement(CCSPlayer_MovementServices *, CMoveData *);
 	bool FASTCALL Detour_PlayerMoveNew(CCSPlayer_MovementServices *, CMoveData *);
@@ -88,6 +89,10 @@ public:
 	virtual void OnProcessUsercmds(void *, int) {}
 
 	virtual void OnProcessUsercmdsPost(void *, int) {}
+
+	virtual void OnSetupMove(CUserCmd *) {}
+
+	virtual void OnSetupMovePost(CUserCmd *) {}
 
 	virtual void OnProcessMovement();
 	virtual void OnProcessMovementPost();
@@ -283,10 +288,10 @@ private:
 	MoveType_t lastKnownMoveType {};
 };
 
-class CMovementPlayerManager : public PlayerManager
+class MovementPlayerManager : public PlayerManager
 {
 public:
-	CMovementPlayerManager()
+	MovementPlayerManager()
 	{
 		for (int i = 0; i < MAXPLAYERS + 1; i++)
 		{

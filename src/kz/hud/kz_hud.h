@@ -2,12 +2,6 @@
 #include "../kz.h"
 #include "../timer/kz_timer.h"
 
-class KZHUDServiceTimerEventListener : public KZTimerServiceEventListener
-{
-	virtual void OnTimerStopped(KZPlayer *player, const KzCourseDescriptor *course) override;
-	virtual void OnTimerEndPost(KZPlayer *player, const KzCourseDescriptor *course, f32 time, u32 teleportsUsed) override;
-};
-
 #define KZ_HUD_TIMER_STOPPED_GRACE_TIME 3.0f
 
 class KZHUDService : public KZBaseService
@@ -25,6 +19,7 @@ public:
 	static void RegisterCommands();
 	void DrawPanels(KZPlayer *target);
 
+	void ResetShowPanel();
 	void TogglePanel();
 
 	bool IsShowingPanel()

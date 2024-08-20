@@ -636,7 +636,7 @@ void KZJumpstatsService::Reset()
 {
 	this->broadcastMinTier = static_cast<DistanceTier>(KZOptionService::GetOptionInt("defaultJSBroadcastMinTier", DistanceTier_Godlike));
 	this->soundMinTier = static_cast<DistanceTier>(KZOptionService::GetOptionInt("defaultJSSoundMinTier", DistanceTier_Godlike));
-	this->showJumpstats = true;
+	this->showJumpstats = KZOptionService::GetOptionInt("defaultShowJS", true);
 	this->jumps.Purge();
 	this->jsAlways = {};
 	this->lastJumpButtonTime = {};
@@ -915,6 +915,18 @@ void KZJumpstatsService::DetectExternalModifications()
 	}
 }
 
+void KZJumpstatsService::DetectWater()
+{
+	if (this->jumps.Count() == 0 || !this->jumps.Tail().IsValid())
+	{
+		return;
+	}
+	if (player->GetPlayerPawn()->m_flWaterLevel() > 0.0f)
+	{
+		this->InvalidateJumpstats("Touched water");
+	}
+}
+
 void KZJumpstatsService::OnTryPlayerMove()
 {
 	this->tpmVelocity = this->player->currentMoveData->m_vecVelocity;
@@ -939,6 +951,7 @@ void KZJumpstatsService::OnProcessMovementPost()
 	}
 	this->possibleEdgebug = false;
 	this->TrackJumpstatsVariables();
+	this->DetectWater();
 }
 
 DistanceTier KZJumpstatsService::GetDistTierFromString(const char *tierString)

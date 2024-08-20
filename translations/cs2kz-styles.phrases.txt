@@ -2,22 +2,63 @@
 {
 	"Style Command Usage"
 	{
-		"en"		"{grey}Usage: {default}kz_style <style>.{grey} Check console for possible styles!"
-		"chi"		"{grey}用法: {default}kz_style <风格名字>.{grey} 在控制台中查看可用模式!"
-		"pl"		"{grey}Użycie: {default}kz_style <mode>.{grey} Sprawdź konsolę aby zobaczyć dostępne style!"
-		"fi"		"{grey}Käyttö: {default}kz_style <tyyli>.{grey} Tarkista konsolista mahdolliset tyylit."
-		"sv"		"{grey}Användning: {default}kz_style <mode>.{grey} Kolla konsolen för möjliga KZ modes!"
-		"ua"		"{grey}Використання: {default}kz_style <style>.{grey} Перевірте консоль, щоб побачити список доступних стилів!"
+		"en"		"{grey}Usage: {default}kz_style <style>/+<style>/-<style>{grey}. Check console for possible styles!"
+		"chi"		"{grey}用法: {default}kz_style <style>/+<style>/-<style>{grey}. 打开控制台以查看可用风格!"
+		"ru"		"{grey}Применение: {default}kz_style <style>/+<style>/-<style>{grey}. Проверьте консоль, чтобы увидеть список доступных стилей!"
+		"fi"		"{grey}Käyttö: {default}kz_style <tyyli>/+<tyyli>/-<tyyli>{grey}. Tarkista konsolista mahdolliset tyylit!"
+		"sv"		"{grey}Användande: {default}kz_style <style>/+<style>/-<style>{grey}. Kolla konsolen för möjliga styles!"
+		"ua"		"{grey}Використання: {default}kz_style <style>/+<style>/-<style>{grey}. Перевірте консоль, щоб побачити список доступних стилів!"
+		"tr"		"{grey}Kullanım: {default}kz_style <style>/+<style>/-<style>{grey}. Mevcut stiller için konsol çıktısına bakın!"
 	}
-	"Possible & Current Styles"
+	"Add Style Command Usage"
 	{
-		"#format"	"style:s"
-		"en"		"Possible styles: (Current style is {style})"
-		"chi"		"可用风格: (当前风格为 {style})"
-		"pl"		"Możliwe style: (Obecny styl to {style})"
-		"fi"		"Mahdolliset tyylit: (Tämän hetkinen tyyli on {style})"
-		"sv"		"Möjliga KZ modes: (Nuvarande KZ mode är {style})"
-		"ua"		"Доступні KZ стилі: (Поточний стиль — {style})"
+		"en"		"{grey}Usage: {default}kz_addstyle <style>{grey}. Check console for possible styles!"
+		"chi"		"{grey}用法: {default}kz_addstyle <style>{grey}. 打开控制台以查看可用风格!"
+		"ru"		"{grey}Применение: {default}kz_addstyle <style>{grey}. Проверьте консоль, чтобы увидеть список доступных стилей!"
+		"fi"		"{grey}Käyttö: {default}kz_addstyle <tyyli>{grey}. Tarkista konsolista mahdolliset tyylit!"
+		"sv"		"{grey}Användande: {default}kz_addstyle <style>{grey}. Kolla konsolen för möjliga styles!"
+		"ua"		"{grey}Використання: {default}kz_addstyle <style>{grey}. Перевірте консоль, щоб побачити список доступних стилів!"
+		"tr"		"{grey}Kullanım: {default}kz_addstyle <style>{grey}. Mevcut stiller için konsol çıktısına bakın!"
+	}
+	"Remove Style Command Usage"
+	{
+		"en"		"{grey}Usage: {default}kz_removestyle <style>{grey}. Check console for possible styles!"
+		"chi"		"{grey}用法: {default}kz_removestyle <style>{grey}. 打开控制台以查看可用风格!"
+		"ru"		"{grey}Применение: {default}kz_removestyle <style>{grey}. Проверьте консоль, чтобы увидеть список доступных стилей!"
+		"fi"		"{grey}Käyttö: {default}kz_removestyle <tyyli>{grey}. Tarkista konsolista mahdolliset tyylit!"
+		"sv"		"{grey}Användande: {default}kz_removestyle <style>{grey}. Kolla konsolen för möjliga styles!"
+		"ua"		"{grey}Використання: {default}kz_removestyle <style>{grey}. Перевірте консоль, щоб побачити список доступних стилів!"
+		"tr"		"{grey}Kullanım: {default}kz_removestyle <style>{grey}. Mevcut stiller için konsol çıktısına bakın!"
+	}
+	"Toggle Style Command Usage"
+	{
+		"en"		"{grey}Usage: {default}kz_togglestyle <style>{grey}. Check console for possible styles!"
+		"chi"		"{grey}用法: {default}kz_togglestyle <风格名字>{grey}. 在控制台中查看可用模式!"
+		"pl"		"{grey}Użycie: {default}kz_togglestyle <style>{grey}. Sprawdź konsolę aby zobaczyć dostępne style!"
+		"fi"		"{grey}Käyttö: {default}kz_togglestyle <tyyli>{grey}. Tarkista konsolista mahdolliset tyylit."
+		"sv"		"{grey}Användande: {default}kz_togglestyle <style>{grey}. Kolla konsolen för möjliga styles!"
+		"ua"		"{grey}Використання: {default}kz_togglestyle <style>{grey}. Перевірте консоль, щоб побачити список доступних стилів!"
+		"tr"		"{grey}Kullanım: {default}kz_togglestyle <style>{grey}. Mevcut stiller için konsol çıktısına bakın!"
+	}
+	"Current Styles"
+	{
+		"en"		"Currently active styles:"
+		"chi"		"当前激活风格:"
+		"ru"		"Активные стили:"
+		"fi"		"Käytössä olevat tyylit:"
+		"sv"		"Nuvarande aktiva styles:"
+		"ua"		"Поточні активні стилі:"
+		"tr"		"Şuanki aktif stiller:"
+	}
+	"Possible Styles"
+	{
+		"en"		"Possible styles:"
+		"chi"		"可用风格:"
+		"pl"		"Możliwe style:"
+		"fi"		"Mahdolliset tyylit:"
+		"sv"		"Möjliga KZ styles:"
+		"ua"		"Доступні стилі:"
+		"tr"		"Mevcut stiller:"
 	}
 	"Style Not Available"
 	{
@@ -27,18 +68,74 @@
 		"chi"		"{grey}风格 {purple}{style} {grey}当前不可用."
 		"pl"		"{grey}Styl {purple}{style} {grey}jest obecnie niedostępny."
 		"fi"		"{grey}Tyyli {purple}{style} {grey}ei ole tällä hetkellä saatavilla."
-		"sv"		"{grey}Användning av {purple}{style} {grey}mode är inte tillgängligt nu."
+		"sv"		"{grey}Användning av {purple}{style} {grey}style är inte tillgängligt nu."
 		"ua"		"{grey}Стиль {purple}{style} {grey}наразі недоступний."
+		"tr"		"{grey}Seçtiğiniz {purple}{style} {grey} stili şu an mevcut değil."
 	}
-	"Switched Style"
+	"Styles Cleared"
 	{
-		// You have switched to the Normal style.
+		"en"		"{grey}You have cleared your styles."
+		"chi"		"{grey}你清除了你的风格."
+		"ru"		"{grey}Вы очистили свои стили."
+		"fi"		"{grey}Olet tyhjentänyt käytössä olleet tyylit."
+		"sv"		"{grey}Du har rensat dina styles."
+		"ua"		"{grey}Ви очистили свої стилі."
+		"tr"		"{grey}Stillerinizi temizlediniz."
+	}
+	"Style Removed"
+	{
 		"#format"	"style:s"
-		"en"		"{grey}You have switched to the {purple}{style} {grey}style."
-		"chi"		"{grey}你已切换到 {purple}{style} {grey}风格."
-		"pl"		"{grey}Zmieniłeś styl na {purple}{style}."
-		"fi"		"{grey}Olet vaihtanut {purple}{style} {grey}tyyliin."
-		"sv"		"{grey}Du har valt {purple}{style} {grey}mode."
-		"ua"		"{grey}Ви переключилися на {purple}{style} {grey}стиль."
+		"en"		"{grey}You have removed {purple}{style}{grey} style."
+		"chi"		"{grey}你移除了 {purple}{style}{grey} 风格."
+		"ru"		"{grey}Вы удалили стиль {purple}{style}{grey}."
+		"fi"		"{grey}Olet poistanut {purple}{style}{grey} tyylin käytöstä."
+		"sv"		"{grey}Du har tagit bort {purple}{style}{grey} style."
+		"ua"		"{grey}Ви видалили {purple}{style}{grey} стиль."
+		"tr"		"{grey}Seçtiğiniz {purple}{style}{grey} stilini kaldırdınız."
+	}
+	"Style Added"
+	{
+		"#format"	"style:s"
+		"en"		"{grey}You have added {purple}{style}{grey} style."
+		"chi"		"{grey}你添加了 {purple}{style}{grey} 风格."
+		"ru"		"{grey}Вы добавили стиль {purple}{style}{grey}."
+		"fi"		"{grey}Olet lisännyt {purple}{style}{grey} tyylin käyttöön."
+		"sv"		"{grey}Du har lagt till {purple}{style}{grey} style."
+		"ua"		"{grey}Ви додали {purple}{style}{grey} стиль."
+		"tr"		"{grey}Seçtiğiniz {purple}{style}{grey} stilini eklediniz."
+	}
+	"Style Already Active"
+	{
+		"#format"	"style:s"
+		"en"		"{darkred}The {purple}{style}{darkred} style is already active."
+		"chi"		"{darkred}{purple}{style}{darkred} 风格已激活."
+		"ru"		"{darkred}Стиль {purple}{style}{darkred} уже активен."
+		"fi"		"{darkred}Tyyli {purple}{style}{darkred} on jo käytössä."
+		"sv"		"{purple}{style}{darkred} style är redan aktiv."
+		"ua"		"{darkred}{purple}{style}{darkred} стиль вже активний."
+		"tr"		"{darkred}Seçtiğiniz {purple}{style}{darkred} stili zaten aktif."
+	}
+	"Style Not Active"
+	{
+		// The AutoBhop style is currently not available.
+		"#format"	"style:s"
+		"en"		"{darkred}The {purple}{style}{darkred} style is not active."
+		"chi"		"{darkred}{purple}{style}{darkred} 风格未激活."
+		"ru"		"{darkred}Стиль {purple}{style}{darkred} не активен."
+		"fi"		"{darkred}Tyyli {purple}{style}{darkred} ei ole käytössä."
+		"sv"		"{purple}{style}{darkred} style är inte aktiv."
+		"ua"		"{darkred}{purple}{style}{darkred} стиль не активовано."
+		"tr"		"{darkred}Seçtiğiniz {purple}{style}{darkred} stili aktif değil."
+	}
+	"Style Conflict"
+	{
+		"#format"	"style:s,conflict_style:s"
+		"en"		"{darkred}Unable to add style {purple}{style}{darkred} as the conflicting style {purple}{conflict_style}{darkred} is active."
+		"chi"		"{darkred}无法添加风格 {purple}{style}{darkred} 因为风格 {purple}{conflict_style}{darkred} 处于激活状态."
+		"ru"		"{darkred}Не удалось добавить стиль {purple}{style}{darkred}, поскольку конфликтный стиль {purple}{conflict_style}{darkred} сейчас активен."
+		"fi"		"{darkred}Tyyliä {purple}{style}{darkred} ei voitu lisätä, koska konfliktoiva tyyli {purple}{conflict_style}{darkred} on jo käytössä."
+		"sv"		"{darkred}Det gick inte att lägga till style {purple}{style}{darkred} eftersom den konflikterande style {purple}{conflict_style}{darkred} är aktiv."
+		"ua"		"{darkred}Неможливо додати стиль {purple}{style}{darkred}, оскільки конфліктний стиль {purple}{conflict_style}{darkred} наразі активний."
+		"tr"		"{darkred}Seçtiğiniz {purple}{style}{darkred} stili eklenemedi çünkü {purple}{conflict_style}{darkred} stili ile çakışıyor."
 	}
 }

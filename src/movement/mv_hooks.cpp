@@ -1,8 +1,9 @@
+#include "cs_usercmd.pb.h"
 #include "movement.h"
 #include "utils/detours.h"
 #include "utils/gameconfig.h"
 #include "tier0/memdbgon.h"
-
+#include "sdk/usercmd.h"
 extern CGameConfig *g_pGameConfig;
 
 void movement::InitDetours()
@@ -10,6 +11,7 @@ void movement::InitDetours()
 	INIT_DETOUR(g_pGameConfig, PhysicsSimulate);
 	INIT_DETOUR(g_pGameConfig, GetMaxSpeed);
 	INIT_DETOUR(g_pGameConfig, ProcessUsercmds);
+	INIT_DETOUR(g_pGameConfig, SetupMove);
 	INIT_DETOUR(g_pGameConfig, ProcessMovement);
 	INIT_DETOUR(g_pGameConfig, PlayerMoveNew);
 	INIT_DETOUR(g_pGameConfig, CheckParameters);
@@ -36,7 +38,7 @@ void movement::InitDetours()
 	INIT_DETOUR(g_pGameConfig, PostThink);
 }
 
-CMovementPlayerManager *playerManager = static_cast<CMovementPlayerManager *>(g_pPlayerManager);
+MovementPlayerManager *playerManager = static_cast<MovementPlayerManager *>(g_pPlayerManager);
 
 void FASTCALL movement::Detour_PhysicsSimulate(CCSPlayerController *controller)
 {
@@ -70,6 +72,15 @@ i32 FASTCALL movement::Detour_ProcessUsercmds(CCSPlayerController *controller, v
 	auto retValue = ProcessUsercmds(controller, cmds, numcmds, paused, margin);
 	player->OnProcessUsercmdsPost(cmds, numcmds);
 	return retValue;
+}
+
+void FASTCALL movement::Detour_SetupMove(CCSPlayer_MovementServices *ms, CUserCmd *pb, CMoveData *mv)
+{
+	MovementPlayer *player = playerManager->ToPlayer(ms);
+	CBasePlayerController *controller = player->GetController();
+	player->OnSetupMove(pb);
+	SetupMove(ms, pb, mv);
+	player->OnSetupMovePost(pb);
 }
 
 void FASTCALL movement::Detour_ProcessMovement(CCSPlayer_MovementServices *ms, CMoveData *mv)

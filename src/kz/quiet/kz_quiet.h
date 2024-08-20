@@ -16,11 +16,14 @@ class KZQuietService : public KZBaseService
 	u8 lastObserverMode;
 	CHandle<CBaseEntity> lastObserverTarget;
 	bool hideWeapon {};
+	bool weaponShownAtLeastOnce[3] {};
 
 public:
 	bool hideOtherPlayers {};
+	static void Init();
 	virtual void Reset() override;
 
+	void OnPlayerPreferencesLoaded();
 	void ToggleHide();
 	void UpdateHideState();
 	void SendFullUpdate();
@@ -32,8 +35,15 @@ public:
 		return this->hideWeapon;
 	}
 
-	void ToggleHideWeapon()
+	bool ShouldHideWeapon(u32 slot)
 	{
-		this->hideWeapon = !this->hideWeapon;
+		if (!this->weaponShownAtLeastOnce[slot])
+		{
+			this->weaponShownAtLeastOnce[slot] = true;
+			return false;
+		}
+		return this->hideWeapon;
 	}
+
+	void ToggleHideWeapon();
 };
