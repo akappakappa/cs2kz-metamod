@@ -676,13 +676,13 @@ void KZPlayer::ZoneStartTouch(const KzCourseDescriptor *course, KzTriggerType zo
 			this->timerService->StartZoneStartTouch(course);
 		}
 		break;
-		
+
 		case KZTRIGGER_ZONE_END:
 		{
 			this->timerService->TimerEnd(course);
 		}
 		break;
-		
+
 		default:
 			break;
 	}
@@ -698,7 +698,7 @@ void KZPlayer::ZoneEndTouch(const KzCourseDescriptor *course, KzTriggerType zone
 			this->timerService->StartZoneEndTouch(course);
 		}
 		break;
-		
+
 		default:
 			break;
 	}
