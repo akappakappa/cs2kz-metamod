@@ -248,4 +248,4 @@ namespace KZ
 		void ProcessConCommand(ConCommandHandle cmd, const CCommandContext &ctx, const CCommand &args);
 		void OnRoundStart();
 	} // namespace misc
-};    // namespace KZ
+}; // namespace KZ
