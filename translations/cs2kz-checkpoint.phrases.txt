@@ -174,4 +174,8 @@
 		"ua"		"{grey}Ви очистили власну стартову позицію."
 		"tr"		"{grey}Başlangıç noktası temizlendi."
 	}
+	"Checkpoints cleared by map"
+	{
+		"en"		"{darkred}The map has cleared your checkpoints."
+	}
 }

@@ -349,6 +349,10 @@
 		"ua"		"Телепортований"
 		"tr"		"Işınlandı"
 	}
+	"Disabled by map"
+	{
+		"en"		"Disabled by map"
+	}
 
 	// =====[OPTIONS]=====
 	"Jumpstats Option - Master Switch - Enable"
