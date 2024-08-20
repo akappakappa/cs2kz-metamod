@@ -44,6 +44,7 @@ class KZStyleService;
 class KZTimerService;
 class KZTipService;
 struct KzCourseDescriptor;
+struct Modifier;
 
 class KZPlayer : public MovementPlayer
 {
@@ -127,10 +128,8 @@ public:
 	virtual void OnTeleport(const Vector *origin, const QAngle *angles, const Vector *velocity) override;
 
 	// Timer events
-	void ZoneStartTouch(const KzCourseDescriptor *course, KzTriggerType zoneType);
-	void ZoneEndTouch(const KzCourseDescriptor *course, KzTriggerType zoneType);
-	void StageZoneStartTouch(const KzCourseDescriptor *course, i32 stageNumber);
-	void StageZoneEndTouch(const KzCourseDescriptor *course, i32 stageNumber);
+	void MappingApiTriggerStartTouch(const KzTrigger *touched, const KzCourseDescriptor *course);
+	void MappingApiTriggerEndTouch(const KzTrigger *touched, const KzCourseDescriptor *course);
 
 	virtual bool OnTriggerStartTouch(CBaseTrigger *trigger) override;
 	virtual bool OnTriggerTouch(CBaseTrigger *trigger) override;
@@ -141,6 +140,7 @@ public:
 private:
 	bool hideLegs {};
 	f64 lastTeleportTime {};
+	CUtlVectorFixed<const KzTrigger *, 64> triggerTouchList {};
 
 public:
 	KZAnticheatService *anticheatService {};
@@ -163,6 +163,15 @@ public:
 	CUtlVector<KZStyleService *> styleServices {};
 	KZTimerService *timerService {};
 	KZTipService *tipService {};
+
+	struct
+	{
+		i32 disablePausingCount {};
+		i32 disableCheckpointsCount {};
+		i32 disableTeleportsCount {};
+		i32 disableJumpstatsCount {};
+		i32 enableSlideCount {};
+	} modifiers {};
 
 	void EnableGodMode();
 
