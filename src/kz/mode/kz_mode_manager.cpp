@@ -29,7 +29,7 @@ public:
 bool KZ::mode::InitModeCvars()
 {
 	bool success = true;
-	for (u32 i = 0; i < numCvar; i++)
+	for (u32 i = 0; i < MODECVAR_COUNT; i++)
 	{
 		ConVarHandle cvarHandle = g_pCVar->FindConVar(KZ::mode::modeCvarNames[i]);
 		if (!cvarHandle.IsValid())
@@ -111,7 +111,7 @@ void KZ::mode::InitModeService(KZPlayer *player)
 
 void KZ::mode::DisableReplicatedModeCvars()
 {
-	for (u32 i = 0; i < numCvar; i++)
+	for (u32 i = 0; i < MODECVAR_COUNT; i++)
 	{
 		assert(modeCvars[i]);
 		modeCvars[i]->flags &= ~FCVAR_REPLICATED;
@@ -120,7 +120,7 @@ void KZ::mode::DisableReplicatedModeCvars()
 
 void KZ::mode::EnableReplicatedModeCvars()
 {
-	for (u32 i = 0; i < numCvar; i++)
+	for (u32 i = 0; i < MODECVAR_COUNT; i++)
 	{
 		assert(modeCvars[i]);
 		modeCvars[i]->flags |= FCVAR_REPLICATED;
@@ -129,7 +129,7 @@ void KZ::mode::EnableReplicatedModeCvars()
 
 void KZ::mode::ApplyModeSettings(KZPlayer *player)
 {
-	for (u32 i = 0; i < numCvar; i++)
+	for (u32 i = 0; i < MODECVAR_COUNT; i++)
 	{
 		auto value = reinterpret_cast<CVValue_t *>(&(modeCvars[i]->values));
 		if (modeCvars[i]->m_eVarType == EConVarType_Float32)
@@ -301,7 +301,7 @@ bool KZModeManager::SwitchToMode(KZPlayer *player, const char *modeName, bool si
 		player->languageService->PrintChat(true, false, "Switched Mode", player->modeService->GetModeName());
 	}
 
-	utils::SendMultipleConVarValues(player->GetPlayerSlot(), KZ::mode::modeCvars, player->modeService->GetModeConVarValues(), KZ::mode::numCvar);
+	utils::SendMultipleConVarValues(player->GetPlayerSlot(), KZ::mode::modeCvars, player->modeService->GetModeConVarValues(), MODECVAR_COUNT);
 	return true;
 }
 
@@ -323,7 +323,7 @@ void KZModeManager::Cleanup()
 		pluginManager->Unload(modeInfos[i].id, true, error, sizeof(error));
 	}
 	// Restore cvars to normal values.
-	for (u32 i = 0; i < KZ::mode::numCvar; i++)
+	for (u32 i = 0; i < MODECVAR_COUNT; i++)
 	{
 		auto value = reinterpret_cast<CVValue_t *>(&(KZ::mode::modeCvars[i]->values));
 		auto defaultValue = KZ::mode::modeCvars[i]->m_cvvDefaultValue;

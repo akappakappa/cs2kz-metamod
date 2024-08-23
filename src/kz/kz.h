@@ -151,7 +151,6 @@ private:
 	};
 
 	CSequentialBhopBuffer lastTouchedSequentialBhops {};
-
 	CUtlVectorFixed<KzTouchingTrigger, 64> kzTriggerTouchList {};
 
 	void AddKzTriggerToTouchList(const KzTrigger *trigger);
@@ -182,14 +181,19 @@ public:
 	KZTimerService *timerService {};
 	KZTipService *tipService {};
 
-	struct
+	struct Modifiers
 	{
-		i32 disablePausingCount {};
-		i32 disableCheckpointsCount {};
-		i32 disableTeleportsCount {};
-		i32 disableJumpstatsCount {};
-		i32 enableSlideCount {};
-	} modifiers {};
+		i32 disablePausingCount;
+		i32 disableCheckpointsCount;
+		i32 disableTeleportsCount;
+		i32 disableJumpstatsCount;
+		i32 enableSlideCount;
+	};
+
+	Modifiers modifiers {};
+	Modifiers lastModifiers {};
+	bool antiBhopActive;
+	bool lastAntiBhopActive;
 
 	void EnableGodMode();
 
