@@ -919,7 +919,7 @@ void KZPlayer::MappingApiTriggerStartTouch(const KzTrigger *touched, const KzCou
 		case KZTRIGGER_RESET_CHECKPOINTS:
 		{
 			this->languageService->PrintChat(true, false, "Checkpoints cleared by map");
-			this->checkpointService->ResetCheckpoints();
+			this->checkpointService->ResetCheckpoints(true);
 		};
 		break;
 
