@@ -15,8 +15,12 @@ void KZCheckpointService::Reset()
 	this->hasCustomStartPosition = false;
 }
 
-void KZCheckpointService::ResetCheckpoints()
+void KZCheckpointService::ResetCheckpoints(bool playSound)
 {
+	if (playSound && this->checkpoints.Count() > 0)
+	{
+		this->PlayCheckpointResetSound();
+	}
 	this->undoTeleportData = {};
 	this->currentCpIndex = 0;
 	this->tpCount = 0;
@@ -310,4 +314,8 @@ void KZCheckpointService::PlayCheckpointSound()
 void KZCheckpointService::PlayTeleportSound()
 {
 	utils::PlaySoundToClient(this->player->GetPlayerSlot(), KZ_SND_DO_TP);
+}
+void KZCheckpointService::PlayCheckpointResetSound()
+{
+	utils::PlaySoundToClient(this->player->GetPlayerSlot(), KZ_SND_RESET_CPS);
 }

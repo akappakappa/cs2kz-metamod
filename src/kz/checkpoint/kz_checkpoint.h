@@ -46,7 +46,7 @@ private:
 	Checkpoint lastTeleportedCheckpoint {};
 
 public:
-	void ResetCheckpoints();
+	void ResetCheckpoints(bool playSound = false);
 	void SetCheckpoint();
 
 	void UndoTeleport();
@@ -91,4 +91,5 @@ public:
 
 	void PlayCheckpointSound();
 	void PlayTeleportSound();
+	void PlayCheckpointResetSound();
 };
