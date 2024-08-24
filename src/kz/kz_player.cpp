@@ -190,6 +190,8 @@ bool KZPlayer::TouchTeleportTrigger(KzTouchingTrigger touching)
 	CBaseEntity *destination = dynamic_cast<CBaseEntity *>(GameEntitySystem()->GetEntityInstance(destinationHandle));
 	if (!destinationHandle.IsValid() || !destination)
 	{
+		this->PrintConsole(true, "Invalid teleport destination \"%s\" on trigger with hammerID %i.", touching.trigger->teleport.destination,
+						   touching.trigger->hammerId);
 		return shouldTeleport;
 	}
 
@@ -206,8 +208,6 @@ bool KZPlayer::TouchTeleportTrigger(KzTouchingTrigger touching)
 	// we're not using a relative destination and don't have it, then it's fine.
 	if (!trigger && touching.trigger->teleport.relative)
 	{
-		// TODO:
-		// PrintToConsole(client, "[KZ] Invalid teleport destination \"%s\" on trigger with hammerID %i.", trigger.tpDestination, trigger.hammerID);
 		return shouldTeleport;
 	}
 
@@ -274,6 +274,9 @@ bool KZPlayer::TouchTeleportTrigger(KzTouchingTrigger touching)
 	this->GetVelocity(&finalVelocity);
 	if (shouldReorientPlayer)
 	{
+		// TODO: BUG: sometimes when getting reoriented and holding a movement key
+		//  the player's speed will get reduced, almost like velocity rotation
+		//  and angle rotation is out of sync leading to counterstrafing.
 		VectorRotate(finalVelocity, QAngle(0, destAngles[YAW], 0), finalVelocity);
 		finalPlayerAngles[YAW] -= destAngles[YAW];
 		this->SetAngles(finalPlayerAngles);
