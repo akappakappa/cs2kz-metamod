@@ -17,7 +17,7 @@ void KZCheckpointService::Reset()
 
 void KZCheckpointService::ResetCheckpoints(bool playSound)
 {
-	if (playSound && this->checkpoints.Count() > 0)
+	if (playSound && this->GetCheckpointCount())
 	{
 		this->PlayCheckpointResetSound();
 	}
@@ -315,6 +315,7 @@ void KZCheckpointService::PlayTeleportSound()
 {
 	utils::PlaySoundToClient(this->player->GetPlayerSlot(), KZ_SND_DO_TP);
 }
+
 void KZCheckpointService::PlayCheckpointResetSound()
 {
 	utils::PlaySoundToClient(this->player->GetPlayerSlot(), KZ_SND_RESET_CPS);
